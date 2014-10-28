@@ -1,0 +1,23 @@
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        <script type="text/javascript" src="scripts/QQL.js"></script>
+        <script type="text/javascript" src="scripts/ui.js"></script>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <script>
+           QQL.run("school_data","select student_name from student_data limit 10 ",
+                   function(resp){
+                      document.write(JSON.stringify(resp));
+                   }
+           );
+
+        </script>
+    </body>
+</html>

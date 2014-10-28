@@ -1,0 +1,3 @@
+noted bugs in quest shule
+1. message preview when enter is pressed in message area
+2. graduating students

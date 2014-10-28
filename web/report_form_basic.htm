@@ -1,0 +1,214 @@
+<html lang="en">
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<title>Report Form</title>
+<style>
+        body {
+	   font-family : calibri;
+	 }
+    #score_table {
+	   width : 100%;
+	   border : 1px solid;
+	   padding : 10px;
+	   border-collapse : collapse;
+	 }
+	#score_table_headers {
+	    text-align : left;
+		padding: 3pt;
+		background: white;
+		border-left: solid #9E9E9E 1.0pt;
+		border-top: solid #9E9E9E 1.0pt;
+		border-right: solid #9E9E9E 1.0pt;
+		border-bottom: solid #9E9E9E 2.25pt;
+		font-size : 10pt;
+	  }
+	  
+    #rank_table{
+	   margin-top : 20px;
+	   margin-bottom : 20px;
+	   width : 100%;
+	   border : 1px solid;
+	   padding : 10px;
+	   border-collapse : collapse;
+	 }
+	#rank_table_headers {
+	    text-align : left;
+		padding: 3pt;
+		background: white;
+		border-left: solid #9E9E9E 1.0pt;
+		border-top: solid #9E9E9E 1.0pt;
+		border-right: solid #9E9E9E 1.0pt;
+		border-bottom: solid #9E9E9E 2.25pt;
+		font-size : 10pt;
+	}
+	
+	#class_teacher_table{
+	   width : 100%;
+	   border : 1px solid;
+	   padding : 10px;
+	   border-collapse : collapse;
+	   margin-top : 20px;	
+	 }
+	#class_teacher_table_headers {
+	    text-align : left;
+		padding: 3pt;
+		background: white;
+		border-left: solid #9E9E9E 1.0pt;
+		border-top: solid #9E9E9E 1.0pt;
+		border-right: solid #9E9E9E 1.0pt;
+		border-bottom: solid #9E9E9E 2.25pt;
+		font-size : 10pt;
+	}
+	
+	#fee_table{
+	   width : 46%;
+	   float : right;
+	   border : 1px solid;
+	   padding : 10px;
+	   border-collapse : collapse;
+	   margin-bottom : 20px;
+	 }
+	#fee_table_headers {
+	       text-align : left;
+		padding: 3pt;
+		background: white;
+		border-left: solid #9E9E9E 1.0pt;
+		border-top: solid #9E9E9E 1.0pt;
+		border-right: solid #9E9E9E 1.0pt;
+		border-bottom: solid #9E9E9E 2.25pt;
+		font-size : 10pt;
+	}
+	
+     #student_detail_table{
+	   width : 100%;
+	   padding : 10px;
+	   margin-top : 20px;
+	 }
+	
+	#principal_table{
+	   width : 100%;
+	   border : 1px solid;
+	   padding : 10px;
+	   border-collapse : collapse;
+	   margin-top : 20px;
+	 }
+	#principal_table_headers {
+	    text-align : left;
+		padding: 3pt;
+		background: white;
+		border-left: solid #9E9E9E 1.0pt;
+		border-top: solid #9E9E9E 1.0pt;
+		border-right: solid #9E9E9E 1.0pt;
+		border-bottom: solid #9E9E9E 2.25pt;
+		font-size : 10pt;
+		
+	}
+	
+  #subject_detail_table{
+	   width : 100%;
+	   border : 1px solid;
+	   padding : 10px;
+	   border-collapse : collapse;
+	 }
+	#subject_detail_table_headers {
+	    text-align : left;
+		padding: 3pt;
+		background: white;
+		border-left: solid #9E9E9E 1.0pt;
+		border-top: solid #9E9E9E 1.0pt;
+		border-right: solid #9E9E9E 1.0pt;
+		border-bottom: solid #9E9E9E 2.25pt;
+		font-size : 10pt;
+		
+	}
+	
+	#header_div {
+	  border : 2.5pt solid #9e9e9e;
+	  height : auto;
+	}
+	#content_div {
+	  border : 2.5pt solid #ffc000;
+	  margin-top : 5px;
+	  padding : 5px;
+	}
+	
+	#main_div {
+	
+	}
+	
+	#address_div {
+	  float : right;
+	  font-size : 8pt;
+	  padding : 10px;
+	  text-align : left;
+	  line-height : 119%;
+	}
+	#sc_logo {
+	  padding : 10px;
+	}
+	
+	#sc_name {
+	  font-size : 26pt;
+	}
+	
+	td{
+	  padding: 3pt;
+	  background: white;
+	  border-left: solid #9E9E9E 1.0pt;
+	  border-right: solid #9E9E9E 1.0pt;
+	  border-bottom: solid #9E9E9E 1.0pt;
+	  font-size : 10pt;
+	}
+	
+
+	
+  .empty_td {
+     height : 50px;
+   }
+   
+   .align_td {
+      width : 150px;
+    }
+   
+   #footer_msg {
+      margin-top : 20px;
+      font-size : 8pt;
+    }
+      #trend_table{
+	   width : 60%;
+           height : 70px;
+	   float : left;
+	   border : 1px solid;
+	   padding : 10px;
+	   border-collapse : collapse;
+	   margin-bottom : 20px;
+	 }
+    
+    @page{
+       size:8.5in 11.0in;
+      }
+      
+    .break {
+        page-break-after: always; 
+     }
+	
+</style>
+ <script src="scripts/jquery-1.9.1.js"></script>
+  <script type="text/javascript">
+      function doPrint(){
+        var buttons = $(".print_button");
+        for(var x = 0; x < buttons.length; x++ ){
+            buttons[x].remove();
+        }
+         window.print();
+         window.close();
+      } 
+       
+   </script>
+</head>
+
+<body id="report_area">
+  
+</body>
+
+</html>
