@@ -171,8 +171,8 @@ var message={
    message.smsData();
     var json1={
                  request_header : {
-                     request_msg : "all_streams",
-                     request_svc :"message_service"
+                     request_msg : "all_streams,recipient_fields,all_classes,all_message_lists",
+                     request_svc :"message_service,message_service,message_service,message_service"
                   },
                   request_object : {  }
               };
@@ -186,89 +186,26 @@ var message={
                      setInfo("An error occurred when attempting to fetch all streams");
                   },
                   success : function(json){
-                    var resp=json.response.data;
-                    allStreams=resp;
-                    var func=function(){
-                       populateSelect("stream_select", resp["STREAM_NAME"],resp["ID"]);
+                    allStreams = json.response.message_service_all_streams;
+                    var func = function(){
+                       populateSelect("stream_select", allStreams["STREAM_NAME"],allStreams["ID"]);
                     };
                     dom.waitTillElementReady("stream_select", func);
-                } 
-          }); 
-          
-            var json3={
-                 request_header : {
-                     request_msg : "recipient_fields",
-                     request_svc :"message_service"
-                  },
-                  request_object : {  }
-              };
-              
-               Ajax.run({
-                  url : serverUrl,
-                  type : "post",
-                  data : json3,
-                  loadArea : "load_area",
-                  error : function(err){
-                     setInfo("An error occurred when attempting to fetch recipient fields");
-                  },
-                  success : function(json){
-                    var resp=json.response.data;
-                    message.recipientFields=resp.student_fields.FIELD_NAME;
-                } 
-          });
-          
-          
-          
-             var json4={
-                 request_header : {
-                     request_msg : "all_classes",
-                     request_svc :"message_service"
-                  },
-                  request_object : {  }
-              };
-              
-               Ajax.run({
-                  url : serverUrl,
-                  type : "post",
-                  data : json4,
-                  loadArea : "load_area",
-                  error : function(err){
-                     setInfo("An error occurred when attempting to fetch all classes");
-                  },
-                  success : function(json){
-                    var resp=json.response.data;
-                    var func=function(){
-                       populateSelect("class_select", resp["CLASS_NAME"],resp["ID"]);
+                    
+                    var classes = json.response.message_service_all_classes;
+                    var func = function(){
+                       populateSelect("class_select", classes["CLASS_NAME"],classes["ID"]);
                     };
                     dom.waitTillElementReady("class_select", func);
+                    
+                    
+                    message.recipientFields = json.response.message_service_recipient_fields.student_fields.FIELD_NAME;
+                    
+                    message.listRecipients = json.response.message_service_all_message_lists;
+                     
                 } 
           }); 
           
-          
-            var json5={
-                 request_header : {
-                     request_msg : "all_message_lists",
-                     request_svc :"message_service"
-                  },
-                  request_object : {  }
-              };
-              
-               Ajax.run({
-                  url : serverUrl,
-                  type : "post",
-                  data : json5,
-                  loadArea : "load_area",
-                  error : function(err){
-                     setInfo("An error occurred when attempting to fetch list recipient fields");
-                  },
-                  success : function(json){
-                    var resp=json.response.data;
-                    message.listRecipients=resp;
-                } 
-          });
-          
-          
-   
    
    },
    smsData : function(){

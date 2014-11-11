@@ -114,17 +114,18 @@ function cloneArray(arr){
             var value=resp[name][0];
             dom.el("student_display_text"+x).value=value;
      } 
-     var relationDiv=document.getElementById("relation_display_area");
+     var relationDiv = document.getElementById("relation_display_area");
      if(relationDiv){
        relationDiv.innerHTML="";  
      }
      else{
-        var div=dom.newEl("div");
-        relationDiv=div;
-        div.attr("id","relation_display_area");
-        dom.el("main-view-display").add(div);
+        //relationDiv = div;
+        //div.attr("id","relation_display_area");
+        ui.collapsible("main-view-display","Hide/Show Items","relation_display_area");
+       // dom.el("main-view-display").add(div);
+        relationDiv = dom.el("relation_display_area");
      }
-        var h3=dom.newEl("h3");
+        var h4=dom.newEl("h4");
         var header="";
         if(type==="teacher"){
            header="Subjects Taught"; 
@@ -138,10 +139,10 @@ function cloneArray(arr){
         else if(type==="stream"){
            header="Subjects in Stream";
         }
-        h3.innerHTML=header;
-        relationDiv.add(h3);
-       for(var x=0; x<relations[key].length; x++){
-         div=dom.el("relation_display_area");
+        h4.innerHTML=header;
+        relationDiv.add(h4);
+       for(var x = 0; x < relations[key].length; x++){
+         div = dom.el("relation_display_area");
          var div1=dom.newEl("div");
          if(type==="teacher"){
             //we need this because we display two items for teachers
@@ -152,13 +153,13 @@ function cloneArray(arr){
             div1.innerHTML=relations[key][x]; 
          }
          
-         var id=relations.ID[x];
+         var id = relations.ID[x];
          CloseDiv(div1,"relation_display_area","confirmRemoveChildOfObject('"+type+"')","removeChildOfObject('"+type+"','"+id+"','"+resp.ID[0]+"')");
      }
      
      //special case populate the privileges of the teacher
      if(type === "teacher"){
-        var teacherPrivHeader=dom.newEl("h3");
+        var teacherPrivHeader = dom.newEl("h4");
         teacherPrivHeader.innerHTML = "Teacher Privileges";
         relationDiv.add(teacherPrivHeader);
         var teacherPrivs = Object.keys(json.response.data.teacher_privs);
@@ -171,9 +172,13 @@ function cloneArray(arr){
             div1.innerHTML = privileges[index];
             CloseDiv(div1,"relation_display_area","confirmRemoveChildOfObject('"+type+"')","removeTeacherPrivilege('"+teacherPrivs[x]+"','"+resp.ID[0]+"')");
         }
-     }
+      }
     }
+    
   }
+  
+  
+
   
   function confirmRemoveChildOfObject(type){
      var conf=confirm("Remove this child object from "+type+" ");

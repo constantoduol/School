@@ -1,14 +1,14 @@
-var allClasses=[];
-var allStreams=[];
-var allSubjects=[];
-var markData={};
-var headerData=[];
-var marksheetData={};
-var listeners={};
-var initData=[];
-var latestChange=[];
+var allClasses = [];
+var allStreams = [];
+var allSubjects = [];
+var markData = {};
+var headerData = [];
+var marksheetData = {};
+var listeners = {};
+var initData = [];
+var latestChange = [];
 var currentHandsonId;
-var sortedData=[];
+var sortedData = [];
 var teacherSubjects={};
 var handsonInstance;
 var lastColumn = "GRADE";
@@ -24,7 +24,7 @@ var columnOffset = 4;
  *        to change the onclick handler on the header to sortMarkDataDesc
  */
 function sortMarkDataAsc(col,id){
-  var length=initData.length;
+  var length = initData.length;
   var data=cloneArray(initData);
   var marks=data.splice(0,length-4);
   var footers=data;
@@ -284,7 +284,6 @@ function displayStudentReportData(resp){
 }
 
 function generateStudentTrend(name,resp){
-  console.log(resp);
   var id=Math.floor(Math.random()*10000000);
   var win=window.open("",id,"width=800,height=650,scrollbars=yes,resizable=yes");
   win.document.write("<html><head>");
@@ -457,8 +456,8 @@ function reportView(){
  
            var json1={
                  request_header : {
-                     request_msg : "all_streams",
-                     request_svc :"mark_service"
+                     request_msg : "all_streams,all_exams,all_classes",
+                     request_svc :"mark_service,mark_service,mark_service"
                   },
                   request_object : {  }
               };
@@ -472,38 +471,19 @@ function reportView(){
                      setInfo("An error occurred when attempting to fetch all streams");
                   },
                   success : function(json){
-                    var resp=json.response.data;
-                    allStreams=resp;
+                    var streams = json.response.mark_service_all_streams;
+                    allStreams = streams;
                     var func=function(){
-                       //populateSelect("stream_select", resp["STREAM_NAME"],resp["ID"]);
-                          resp["STREAM_NAME"].unshift("All");
-                          resp["ID"].unshift("all");
-                          ui.dropdown.add("stream_select_area","stream_select",resp["STREAM_NAME"],resp["ID"]);
+                          streams["STREAM_NAME"].unshift("All");
+                          streams["ID"].unshift("all");
+                          ui.dropdown.add("stream_select_area","stream_select",streams["STREAM_NAME"],streams["ID"]);
                     };
                     dom.waitTillElementReady("stream_select", func);
-                } 
-          }); 
-          
-            var json3={
-                 request_header : {
-                     request_msg : "all_exams",
-                     request_svc :"mark_service"
-                  },
-                  request_object : {  }
-              };
-              
-               Ajax.run({
-                  url : serverUrl,
-                  type : "post",
-                  data : json3,
-                  loadArea : "load_area",
-                  error : function(err){
-                     setInfo("An error occurred when attempting to fetch all exams");
-                  },
-                  success : function(json){
-                    var resp=json.response.data;
+                    
+                    
+                    var exams = json.response.mark_service_all_exams;
                     var func=function(){
-                        populateSelect("exam_select", resp["EXAM_NAME"],resp["ID"]);
+                        populateSelect("exam_select", exams["EXAM_NAME"],exams["ID"]);
                         $('.multiselect').multiselect({
                            buttonText : function(options,select){
                               return options.length+" EXAMS";
@@ -514,35 +494,17 @@ function reportView(){
                         }); //initialise multiselects
                     };
                     dom.waitTillElementReady("exam_select", func);
-                } 
-          });
-          
-             var json4={
-                 request_header : {
-                     request_msg : "all_classes",
-                     request_svc :"mark_service"
-                  },
-                  request_object : {  }
-              };
-              
-               Ajax.run({
-                  url : serverUrl,
-                  type : "post",
-                  data : json4,
-                  loadArea : "load_area",
-                  error : function(err){
-                     setInfo("An error occurred when attempting to fetch all classes");
-                  },
-                  success : function(json){
-                    var resp=json.response.data;
-                    allClasses=resp;
+                    
+                    var classes = json.response.mark_service_all_classes;
+                    allClasses = classes;
                     var func=function(){
-                      // populateSelect("class_select", resp["CLASS_NAME"],resp["ID"]);
-                       ui.dropdown.add("class_select_area","class_select",resp["CLASS_NAME"],resp["ID"]);
+                       ui.dropdown.add("class_select_area","class_select",classes["CLASS_NAME"],classes["ID"]);
                     };
                     dom.waitTillElementReady("class_select", func);
+                    
                 } 
-          });
+          }); 
+          
      report.populateTemplates(); //populate report form templates select
 }
 
@@ -675,15 +637,15 @@ function markView(){
             ["Exam","Class","Stream","Subject","Order","Hide papers","Save","Print"],
             [[examSelect],[classSelect],[streamSelect],[subjectSelect],[orderSelect],[hideSelect],[btn],[btn1]],
             false,
-            "background : #F5F5DC;border: 2px solid #F5F5DC; position : fixed; width : auto;z-index :2;zoom:84%"
+            "background: #F5F5DC;border: 2px solid #F5F5DC; position:fixed; width : auto;z-index :2;zoom:84%;border-collapse:separate;border-radius:10px"
         );
     var main = dom.el("main-view-form");
     main.add(markDiv);
     
            var json1={
                  request_header : {
-                     request_msg : "all_streams",
-                     request_svc :"mark_service"
+                     request_msg : "all_streams,all_subjects,all_exams,all_classes",
+                     request_svc :"mark_service,mark_service,mark_service,mark_service"
                   },
                   request_object : {  }
               };
@@ -697,90 +659,37 @@ function markView(){
                      setInfo("An error occurred when attempting to fetch all streams");
                   },
                   success : function(json){
-                    var resp=json.response.data;
-                    allStreams=resp;
+                    var streams = json.response.mark_service_all_streams;
+                    allStreams = streams;
                     var func=function(){
-                       populateSelect("stream_select", resp["STREAM_NAME"],resp["ID"]);
+                       populateSelect("stream_select", streams["STREAM_NAME"],streams["ID"]);
                     };
                     dom.waitTillElementReady("stream_select", func);
-                } 
-          }); 
-            var json2={
-                 request_header : {
-                     request_msg : "all_subjects",
-                     request_svc : "mark_service"
-                  },
-                  request_object : {  }
-              };
-               
-               Ajax.run({
-                  url : serverUrl,
-                  type : "post",
-                  data : json2,
-                  loadArea : "load_area",
-                  error : function(err){
-                     setInfo("An error occurred when attempting to fetch all subjects");
-                  },
-                  success : function(json){
-                    var resp=json.response.data;
-                    allSubjects=resp;
+                    
+                    
+                    var subjects = json.response.mark_service_all_subjects;
+                    
+                    allSubjects = subjects;
                     var func=function(){
-                       populateSelect("subject_select", resp["SUBJECT_NAME"],resp["ID"]);
+                       populateSelect("subject_select", subjects["SUBJECT_NAME"],subjects["ID"]);
                     };
                     dom.waitTillElementReady("subject_select", func);
-                } 
-          });
-          
-            var json3={
-                 request_header : {
-                     request_msg : "all_exams",
-                     request_svc :"mark_service"
-                  },
-                  request_object : {  }
-              };
-              
-               Ajax.run({
-                  url : serverUrl,
-                  type : "post",
-                  data : json3,
-                  loadArea : "load_area",
-                  error : function(err){
-                     setInfo("An error occurred when attempting to fetch all exams");
-                  },
-                  success : function(json){
-                    var resp=json.response.data;
-                    var func=function(){
-                       populateSelect("exam_select", resp["EXAM_NAME"],resp["ID"]);
+                    
+                    var exams = json.response.mark_service_all_exams;
+                    var func = function(){
+                       populateSelect("exam_select", exams["EXAM_NAME"],exams["ID"]);
                     };
                     dom.waitTillElementReady("exam_select", func);
-                } 
-          });
-          
-             var json4={
-                 request_header : {
-                     request_msg : "all_classes",
-                     request_svc :"mark_service"
-                  },
-                  request_object : {  }
-              };
-              
-               Ajax.run({
-                  url : serverUrl,
-                  type : "post",
-                  data : json4,
-                  loadArea : "load_area",
-                  error : function(err){
-                     setInfo("An error occurred when attempting to fetch all classes");
-                  },
-                  success : function(json){
-                    var resp=json.response.data;
-                    allClasses=resp;
-                    var func=function(){
-                       populateSelect("class_select", resp["CLASS_NAME"],resp["ID"]);
+                    
+                    var classes = json.response.mark_service_all_classes;
+                    allClasses = classes;
+                    var func = function(){
+                       populateSelect("class_select", classes["CLASS_NAME"],classes["ID"]);
                     };
                     dom.waitTillElementReady("class_select", func);
                 } 
-          });
+          }); 
+            
 }
 
 
@@ -819,7 +728,8 @@ function studentsAndMarks(){
                   success : function(json){
                     var resp=json.response.data;
                     initData=[];
-                    markData=resp;
+                    marksheetData = {}; //this is important to clear the previous entries after grid refreshes
+                    markData = resp;
                     var handson=dom.el(currentHandsonId);
                     currentHandsonId=new Date().getTime()+"_handson_new";
                     handson.attr("id",currentHandsonId);
@@ -904,9 +814,9 @@ function populateSubjectAndPaperCols(resp){
         //marks that exist but are of previously removed subjects will not be populated
         continue;
      }
-     var row=markData.students["ID"].indexOf(studentId); //shift the 
-     var col=headerData[2].indexOf(paperId);
-     var markValue = paperId === subjectId ?  round(correctValue(marks.mark_value[x])) : correctValue(marks.mark_value[x]); //round for subjects only
+     var row = markData.students["ID"].indexOf(studentId); //shift the 
+     var col = headerData[2].indexOf(paperId);
+     var markValue = paperId === subjectId ?  round(correctValue(marks.mark_value[x]),col) : correctValue(marks.mark_value[x]); //round for subjects only
      //-------------------------------------
      if(row<0 || col<0){
         //the row does not exist;
@@ -916,27 +826,27 @@ function populateSubjectAndPaperCols(resp){
      initData[row][col+columnOffset]=markValue; //col+4 because the first column is stream and second is sp, cp and name
   }
   
-  for(var x=0; x<marks.student_id.length; x++){
-     var paperId=marks.paper_id[x];
-     var studentId=marks.student_id[x];
-     var subjectId=marks.subject_id[x];
+  for(var x = 0; x < marks.student_id.length; x++){
+     var paperId = marks.paper_id[x];
+     var studentId = marks.student_id[x];
+     var subjectId = marks.subject_id[x];
      if(resp.subjects.ID.indexOf(subjectId)===-1){
         //only populate subjects that currently belong to this stream
         //marks that exist but are of previously removed subjects will not be populated
         continue;
      }
-     var col=headerData[2].indexOf(paperId);
-     var row=markData.students["ID"].indexOf(studentId); 
-     var markValue=round(correctValue(marks.mark_value[x]));
+     var col = headerData[2].indexOf(paperId);
+     var row = markData.students["ID"].indexOf(studentId); 
+     var markValue = round(correctValue(marks.mark_value[x]), col );
      if(!subjectLengths[paperId]){
        subjectLengths[paperId]=0;  
      }
-     if(row<0 || col<0){
+     if(row < 0 || col < 0){
         continue;
      }
      subjectLengths[paperId]=++subjectLengths[paperId];
-     var result=evaluateChanges(col,row);
-     calculateLowerTotals(result,markValue,0,col+columnOffset,subjectLengths[paperId],true); 
+     var result = evaluateChanges(col,row);
+     calculateLowerTotals(result,markValue,0, col+columnOffset ,subjectLengths[paperId],true); 
   } 
 }
 
@@ -958,7 +868,7 @@ function populateExtraCols(resp){
 }
 
 function marksheetDesignView(){
-    var form=new Form(null,"main-view-form");
+    var form = new Form(null,"main-view-form");
     setTitle("Marksheet Design View");
     var select=dom.newEl("select");
     select.attr("id","design_class_select");
@@ -972,10 +882,12 @@ function marksheetDesignView(){
     form.add(btn);
        var json1={
                  request_header : {
-                     request_msg : "all_classes",
-                     request_svc :"edit_mark_service"
+                     request_msg : "all_classes,all_fields,all_subjects",
+                     request_svc :"edit_mark_service,edit_mark_service,edit_mark_service"
                   },
-                  request_object : {  }
+                  request_object : { 
+                     type : "student"  
+                  }
               };
               
                Ajax.run({
@@ -987,7 +899,7 @@ function marksheetDesignView(){
                      setInfo("An error occurred when attempting to fetch all classes");
                   },
                   success : function(json){
-                     var classes=json.response.data;
+                     var classes=json.response.edit_mark_service_all_classes;
                      var classNames = []; //dont show archived records
                      var classIds = [];
                      for(var x=0; x<classes["ID"].length; x++){
@@ -997,96 +909,59 @@ function marksheetDesignView(){
                        }  
                     }
                     populateSelect("design_class_select",classNames,classIds);
-                } 
-          }); 
-          
-          var json3={
-                 request_header : {
-                     request_msg : "all_fields",
-                     request_svc : "edit_mark_service"
-                  },
-                  
-                  request_object : {  
-                     type : "student"
-                  }
-              };
-              
-               Ajax.run({
-                  url : serverUrl,
-                  type : "post",
-                  data : json3,
-                   loadArea : "load_area",
-                  error : function(err){
-                     setInfo("An error occurred when attempting to fetch student fields ");
-                  },
-                  success : function(json){
-                    allFields=json.response.data;
-                 } 
-          });
-           var json2={
-                 request_header : {
-                     request_msg : "all_subjects",
-                     request_svc :"edit_mark_service"
-                  },
-                  request_object : {  }
-              };
-              
-               Ajax.run({
-                  url : serverUrl,
-                  type : "post",
-                  data : json2,
-                  loadArea : "load_area",
-                  error : function(err){
-                     setInfo("An error occurred when attempting to fetch all subjects");
-                  },
-                  success : function(json){
-                    var resp=json.response.data;
-                    allSubjects=resp;
+                    
+                    allFields = json.response.edit_mark_service_all_fields;
+                    
+                    var subjects = json.response.edit_mark_service_all_subjects;
+                    allSubjects = subjects;
                     generateMarksheetDesign(form);
                 } 
           }); 
-          
         
 }
 
 function generateMarksheetDesign(form){
-  var subjects=allSubjects["SUBJECT_NAME"];
-  var subjectIds=allSubjects["ID"];
-  var x=0;
-  for(;x<subjects.length; x++){
-     var input=dom.newEl("input");
-     var label=dom.newEl("label");
-     label.innerHTML=subjects[x];
+  var subjects = allSubjects["SUBJECT_NAME"];
+  var subjectIds = allSubjects["ID"];
+  var x = 0;
+  for(;x < subjects.length; x++){
+     var input = dom.newEl("input");
+     var label = dom.newEl("label");
+     var select = dom.newEl("select");
+     select.attr("id",subjectIds[x]);
+     select.attr("style","width : 50px");
+     label.innerHTML = subjects[x];
      input.attr("type","text");
      input.attr("class","input-xxlarge");
      input.attr("id","mark_sheet_text"+x);
      input.attr("subject_id",subjectIds[x]);
      form.add(label);
      form.add(input);
+     form.add(select);
+     populateSelect(subjectIds[x],[0,1,2,3,4],[0,1,2,3,4]);
   }
  
-  var br=dom.newEl("br");
-  var btn=dom.newEl("input");
+  var br = dom.newEl("br");
+  var btn = dom.newEl("input");
   btn.attr("type","button");
   btn.attr("class","btn btn-primary btn-medium");
   btn.attr("value","Save Design");
   btn.attr("onclick","javascript:saveMarkSheetDesign()");
   
-  var plabel=dom.newEl("label");
-  plabel.innerHTML="Round Precision";
-  var precision=dom.newEl("input");
-  precision.attr("type","text");
-  precision.attr("class","input-xxlarge");
-  precision.attr("placeholder","Round Precision");
-  precision.attr("id","round_precision");
+  var gprecision = dom.newEl("select");
+  gprecision.attr("style","width : 50px");
+  gprecision.attr("id","g_precision");
   
-  var glabel=dom.newEl("label");
+  var glabel = dom.newEl("label");
   glabel.innerHTML="Grand Total Formula";
   var gtotal=dom.newEl("textarea");
   gtotal.attr("style","width : 800px; height : 100px");
   gtotal.attr("placeholder","Grand total formula");
   gtotal.attr("id","gtotal_formula");
   
+  var aprecision = dom.newEl("select");
+  aprecision.attr("style","width : 50px");
+  aprecision.attr("id","a_precision");
    
   var alabel=dom.newEl("label");
   alabel.innerHTML="Average Formula";
@@ -1095,14 +970,18 @@ function generateMarksheetDesign(form){
   atotal.attr("placeholder","Average formula");
   atotal.attr("id","average_formula");
   
-  form.add(plabel);
-  form.add(precision);
+
   form.add(glabel);
   form.add(gtotal);
+  form.add(gprecision);
   form.add(alabel);
   form.add(atotal);
+  form.add(aprecision);
   form.add(br);
   form.add(btn);
+  
+  populateSelect("g_precision",[0,1,2,3,4],[0,1,2,3,4]);
+  populateSelect("a_precision",[0,1,2,3,4],[0,1,2,3,4]);
   
   form.add(dom.newEl("hr"));
   var div=dom.newEl("div");
@@ -1224,41 +1103,50 @@ function fetchMarkSheetDesign(){
                      setInfo("An error occurred when attempting to fetch mark sheet designs");
                   },
                   success : function(json){
-                    var resp=json.response.data;
-                    var ids=allSubjects["ID"];
-                    var subIds=resp["SUBJECT_ID"];
-                    var designs=resp["DESIGN"];
-                    for(var x=0; x<ids.length; x++){
-                       var txt=dom.el("mark_sheet_text"+x); 
-                       var id=txt.getAttribute("subject_id");
+                    var resp = json.response.data;
+                    var ids = allSubjects["ID"];
+                    var subIds = resp["SUBJECT_ID"];
+                    var designs = resp["DESIGN"];
+                    for(var x = 0; x < ids.length; x++){
+                       var txt = dom.el("mark_sheet_text"+x); 
+                       var id = txt.getAttribute("subject_id");
                        var value=designs[subIds.indexOf(id)];
                        txt.value=value;
+                       var precId = "pre_" + ids[x].substring(0, 4);
+                       var subPrec = designs[subIds.indexOf(precId)];
+                       dom.el(ids[x]).value = subPrec;
                     }
                    var grandFormula=designs[subIds.indexOf("grand")];
                    var averageFormula=designs[subIds.indexOf("average")];
-                   var round=designs[subIds.indexOf("round")];
+                   var a_prec = designs[subIds.indexOf("a_prec")];
+                   var g_prec = designs[subIds.indexOf("g_prec")];
                    dom.el("gtotal_formula").value=grandFormula;
                    dom.el("average_formula").value=averageFormula;
-                   dom.el("round_precision").value = round;
+                   dom.el("a_precision").value = a_prec;
+                   dom.el("g_precision").value = g_prec;
                 } 
           });  
 }
 
 function saveMarkSheetDesign(){
-  var subjects=allSubjects["SUBJECT_NAME"];
-  var classId=dom.el("design_class_select").value;
-  var gtotal= encodeURIComponent(dom.el("gtotal_formula").value.replace(/\n|\r/g,""));
+  var subjects = allSubjects["SUBJECT_NAME"];
+  var classId = dom.el("design_class_select").value;
+  var gtotal = encodeURIComponent(dom.el("gtotal_formula").value.replace(/\n|\r/g,""));
   var average = encodeURIComponent(dom.el("average_formula").value.replace(/\n|\r/g,""));
-  var round = dom.el("round_precision").value;
-  var subjectIds=[];
-  var designValues=[];
-  for(var x=0; x<subjects.length; x++){
-     var id="mark_sheet_text"+x;
-     var input=dom.el(id);
-     var subjectId=input.getAttribute("subject_id");
-     var designValue=encodeURIComponent(input.value.replace(/\n|\r/g,""));
+  var aprecision = dom.el("a_precision").value;
+  var gprecision = dom.el("g_precision").value;
+  var subjectIds = [];
+  var designValues = [];
+  var subjectPrecisions = [];
+  for(var x = 0; x < subjects.length; x++){
+     var id = "mark_sheet_text"+x;
+     var input = dom.el(id);
+     var subjectId = input.getAttribute("subject_id");
+     var designValue = encodeURIComponent(input.value.replace(/\n|\r/g,""));
      subjectIds.push(subjectId);
      designValues.push(designValue);
+     var sPrecision = dom.el(subjectId).value;
+     subjectPrecisions.push(sPrecision);
   }
    var json={
                  request_header : {
@@ -1271,7 +1159,9 @@ function saveMarkSheetDesign(){
                     design_values : designValues,
                     average_formula : average,
                     grand_formula : gtotal,
-                    round_precision : round
+                    a_precision : aprecision,
+                    g_precision : gprecision,
+                    subject_precisions : subjectPrecisions
                  }
               };
               
@@ -1296,9 +1186,9 @@ function saveMarkSheetDesign(){
 }
 
 function saveMarkSheet(){
-  var examId=dom.el("exam_select").value;
-  var stream=dom.el("stream_select").value;
-  var clazz=dom.el("class_select").value;
+  var examId = dom.el("exam_select").value;
+  var stream = dom.el("stream_select").value;
+  var clazz = dom.el("class_select").value;
   var json={
                  request_header : {
                      request_msg : "save_mark_sheet",
@@ -1360,8 +1250,8 @@ function newHandsOn(){
              var latestRow=latestChange[0];
              var latestCol=latestChange[1];
              var latestValue=latestChange[3];
-             var row=changes[y][0];
-             var col=changes[y][1];
+             var row = changes[y][0];
+             var col = changes[y][1];
              var oldValue=correctValue(changes[y][2]);
              var newValue=correctValue(changes[y][3]);
              if(latestRow===row && latestCol===col && latestValue===newValue){
@@ -1372,7 +1262,7 @@ function newHandsOn(){
                 continue;
              }
              saveChanges(newValue,col,row); //2
-             var result=evaluateChanges(col,row);
+             var result = evaluateChanges(col,row);
              calculateRightTotals(row);
              calculateLowerTotals(result,newValue,oldValue,col,false);
              $container.handsontable("render");
@@ -1615,12 +1505,12 @@ function saveChanges(newValue,col,row){
       //if this is a new change then note it in the marksheet data
       //if we are changing something that changed before,just update it
       //observers watching -->
-      var studentId=markData.students["ID"][row];
-      var paperId=headerData[2][col-columnOffset]; //subtract 2 because of the name and stream column
-      var subjectId=headerData[3][col-columnOffset];
+      var studentId = markData.students["ID"][row];
+      var paperId = headerData[2][col-columnOffset]; //subtract columnOffset because of the name,sp,cp and stream column
+      var subjectId = headerData[3][col-columnOffset];
       var data=[paperId,subjectId ,newValue];
            //store this data
-      var exists=false;
+      var exists = false;
       for(var x=0; x<marksheetData[studentId].length; x++){
           if(marksheetData[studentId][x][0]===paperId && marksheetData[studentId][x][1]===subjectId){
                  //this is the second edit that is being made so update the previous entry
@@ -1639,27 +1529,27 @@ function evaluateChanges(col,row){
    //formulas entered are evaluated on the following criteria
    //if a paper name has spaces the spaces are replaced with underscores
    //formulas use only lower case characters
-   if(col===undefined){
+   if(!col){
      return; 
    }
-   var listenData =listeners[col];
-   if(listenData===undefined || listenData===null){
+   var listenData = listeners[col];
+   if(!listenData){
       return; 
    }
-   var headerNames=headerData[4];
-   var subjectCol=listenData["subject_col"];
-   var formula=listenData["formula_value"];
-   var paperNames=listenData["paper_names"];
-   for(var x=0; x<paperNames.length; x++){
+   var headerNames = headerData[4];
+   var subjectCol = listenData["subject_col"];
+   var formula = listenData["formula_value"];
+   var paperNames = listenData["paper_names"];
+   for(var x = 0; x < paperNames.length; x++){
       var paperCol = headerNames.indexOf(paperNames[x]);
-      var value=correctValue(initData[row][paperCol]);
-      var str="var "+paperNames[x].toLowerCase().replace(/ /g,"_")+" = "+value+" ";
+      var value = correctValue(initData[row][paperCol]);
+      var str = "var "+paperNames[x].toLowerCase().replace(/ /g,"_")+" = "+value+" ";
       eval(str);
     }
-    var result=eval(formula);
+    var result = eval(formula);
     var oldValue=correctValue(initData[row][subjectCol]);
-    result=round(result);
-    initData[row][subjectCol]=result;
+    result = round(result,subjectCol - columnOffset);
+    initData[row][subjectCol] = result;
     saveChanges(result,subjectCol,row); //this is a subject change //1
     return [result,oldValue];
 }
@@ -1696,7 +1586,8 @@ function calculateGrandAndAverage(row){
    //get the formula for grand total
     var grandFormula = markData.formulas.DESIGN[markData.formulas.SUBJECT_ID.indexOf("grand")];
     var averageFormula = markData.formulas.DESIGN[markData.formulas.SUBJECT_ID.indexOf("average")];
-    var streamName = dom.el("stream_select").selectedOptions[0].innerHTML.toLowerCase().split(" ").join("_");
+    var select = dom.el("stream_select");
+    var streamName = select.options[select.selectedIndex].innerHTML.toLowerCase().split(" ").join("_");
     if(!grandFormula){
        setInfo("No formula defined for grand total!");
        return;
@@ -1754,8 +1645,8 @@ function calculateInitTotals(){
               var currentSubjectId=markData.subjects.ID[0];
               if(!isNaN(totals[1])){
                 initData[row][classRankPos]= theStudent.subject_ranks[currentSubjectId]; 
-                initData[row][totalPos] = round(totals[0]); //subject G.total
-                initData[row][averagePos] = round(totals[1]);  //subject Average 
+                initData[row][totalPos] = round(totals[0],"g"); //subject G.total
+                initData[row][averagePos] = round(totals[1],"a");  //subject Average 
                 grandTotal=grandTotal+totals[0];
                 grandAverage=grandAverage+totals[1];
                 activeRowCount++;
@@ -1768,8 +1659,8 @@ function calculateInitTotals(){
             if(theStudent.grand_total){
                 initData[row][streamRankPos] = theStudent.stream_rank ;
                 initData[row][classRankPos] = theStudent.class_rank ;
-                initData[row][totalPos] = round(theStudent.grand_total); //student G.total
-                initData[row][averagePos] = round(theStudent.average);  //student Average 
+                initData[row][totalPos] = round(theStudent.grand_total,"g"); //student G.total
+                initData[row][averagePos] = round(theStudent.average,"a");  //student Average 
                 activeRowCount++;
                 grandTotal=grandTotal+theStudent.grand_total;
                 grandAverage=grandAverage+theStudent.average;
@@ -1782,13 +1673,13 @@ function calculateInitTotals(){
        
      }
             
-      initData[grandTotalPos][totalPos]=round(grandTotal); //The total of grand totals
-      initData[subjectAveragePos][totalPos]=round(grandTotal/activeRowCount);  //stream average mark out of the total score
+      initData[grandTotalPos][totalPos]=round(grandTotal,"g"); //The total of grand totals
+      initData[subjectAveragePos][totalPos]=round(grandTotal/activeRowCount,"a");  //stream average mark out of the total score
       
-      initData[grandTotalPos][averagePos]=round(grandAverage); //The sum of all averages
-      initData[subjectAveragePos][averagePos]=round(grandAverage/activeRowCount);  //the average of all averages
+      initData[grandTotalPos][averagePos]=round(grandAverage,"g"); //The sum of all averages
+      initData[subjectAveragePos][averagePos]=round(grandAverage/activeRowCount,"a");  //the average of all averages
       if(markData.grades){
-         initData[subjectGradePos][averagePos]=getGrade(grandAverage/activeRowCount);
+         initData[subjectGradePos][averagePos] = getGrade(grandAverage/activeRowCount);
       }
 }
 
@@ -1825,17 +1716,17 @@ function calculateRightTotals(row,len){
       var totals=calculateGrandAndAverage(row);
       var newStudentTotal = totals[0];
       var newStudentAverage = totals[1]; 
-      initData[row][totalPos]=round(newStudentTotal); //student G.total
-      initData[row][averagePos]=round(newStudentAverage);  //student Average 
+      initData[row][totalPos]=round(newStudentTotal,"g"); //student G.total
+      initData[row][averagePos]=round(newStudentAverage,"a");  //student Average 
       
       currentGrandTotal = currentGrandTotal + newStudentTotal - currentStudentTotal;
       currentAverageTotal = currentAverageTotal + newStudentAverage - currentStudentAverage;
       
-      initData[grandTotalPos][totalPos]=round(currentGrandTotal); //The total of grand totals e.g 45,677
-      initData[subjectAveragePos][totalPos]=round(currentGrandTotal/studentCount);  //stream average mark out of the total score e.g 320/500
+      initData[grandTotalPos][totalPos]=round(currentGrandTotal,"g"); //The total of grand totals e.g 45,677
+      initData[subjectAveragePos][totalPos]=round(currentGrandTotal/studentCount,"a");  //stream average mark out of the total score e.g 320/500
       
-      initData[grandTotalPos][averagePos]=round(currentAverageTotal); //The sum of all averages
-      initData[subjectAveragePos][averagePos]=round(currentAverageTotal/studentCount);  //the average of all averages
+      initData[grandTotalPos][averagePos]=round(currentAverageTotal,"g"); //The sum of all averages
+      initData[subjectAveragePos][averagePos]=round(currentAverageTotal/studentCount,"a");  //the average of all averages
       if(markData.grades){
          initData[row][gradePos]=getGrade(newStudentAverage); 
          initData[subjectGradePos][averagePos]=getGrade(currentAverageTotal/studentCount);
@@ -1843,21 +1734,32 @@ function calculateRightTotals(row,len){
 }
 
 function getGrade(markValue){
-      markValue=Math.round(markValue);
-      for(var m=0; m<markData.grades.length; m++){ //set the students grade
-             var tempDetails=markData.grades[m].split(",");
-             var start=parseFloat(tempDetails[0]);
-             var stop=parseFloat(tempDetails[1]);
-             var grade=tempDetails[2];
-             if(markValue>=start && markValue<=stop){
-                 return grade;
-             }  
-        }
-     return "X";
+    markValue = Math.round(markValue);
+    for(var m = 0; m < markData.grades.length; m++){ //set the students grade
+        var tempDetails = markData.grades[m].split(",");
+        var start = parseFloat(tempDetails[0]);
+        var stop = parseFloat(tempDetails[1]);
+        var grade = tempDetails[2];
+        if(markValue >= start && markValue <= stop){
+            return grade;
+        }  
+    }
+    return "X";
 }
 
-function round(num){
-   var precision = markData.formulas.DESIGN[markData.formulas.SUBJECT_ID.indexOf("round")];
+function round(num,col){ //col a is average and g is grand
+   var precId;
+   if(col === "a"){
+       //this is average
+       precId = "a_prec";
+   }
+   else if(col === "g"){
+       precId = "g_prec";
+   }
+   else {
+       precId =  "pre_" + headerData[2][col].substring(0, 4);
+   }
+   var precision = markData.formulas.DESIGN[markData.formulas.SUBJECT_ID.indexOf(precId)];
    if(!precision){
       precision = 0;
    }
@@ -1894,14 +1796,14 @@ function correctValue(value){
 function calculateLowerTotals(result,newValue,oldValue,col,len,init){ //the length part was added to make sure the correct averages are calculated
     //result has two values at 0 is the result from a formula evaluation
     //the second is the old value
-    var rowLength=initData.length;
+    var rowLength = initData.length;
     var grandTotalPos = rowLength-3; //-3 because it is 3 rows from the bottom of the grid
-    var subjectAveragePos= rowLength-2; //-2 because the average of subjects is on the 2nd row from bottom of grid
+    var subjectAveragePos = rowLength-2; //-2 because the average of subjects is on the 2nd row from bottom of grid
     var subjectGradePos = rowLength-1; //the subject grades are on the bottom row of the grid
-    var studentCount =rowLength-4;  //this is the number of students on the grid, it is the number of rows minus 4 because of 
+    var studentCount = rowLength-4;  //this is the number of students on the grid, it is the number of rows minus 4 because of 
     var currentTotal=correctValue(initData[grandTotalPos][col]);
-    oldValue=correctValue(oldValue); 
-    newValue=correctValue(newValue); 
+    oldValue = correctValue(oldValue); 
+    newValue = correctValue(newValue); 
     if(newValue===0){
        oldValue=0; 
     } 
@@ -1919,10 +1821,10 @@ function calculateLowerTotals(result,newValue,oldValue,col,len,init){ //the leng
        else{
           subjectAverage=subjectNewTotal/studentCount;
        }
-       initData[grandTotalPos][subjectCol+columnOffset]=round(subjectNewTotal);
-       initData[subjectAveragePos][subjectCol+columnOffset]=round(subjectAverage);
+       initData[grandTotalPos][subjectCol+columnOffset]=round(subjectNewTotal,"g");
+       initData[subjectAveragePos][subjectCol+columnOffset] = round(subjectAverage,"a");
        if(markData.grades){
-          initData[subjectGradePos][subjectCol+columnOffset]=getGrade(subjectAverage);
+          initData[subjectGradePos][subjectCol+columnOffset] = getGrade(subjectAverage);
        }
     }
     
@@ -1935,13 +1837,13 @@ function calculateLowerTotals(result,newValue,oldValue,col,len,init){ //the leng
        paperAverage=newPaperTotal/(studentCount);
     }
 
-    initData[grandTotalPos][col]=round(newPaperTotal); //the total for the paper
-    initData[subjectAveragePos][col]=round(paperAverage); //this is the average of the paper
+    initData[grandTotalPos][col]= round(newPaperTotal,"g"); //the total for the paper
+    initData[subjectAveragePos][col]= round(paperAverage,"a"); //this is the average of the paper
     //calculate grades for subjects only i.e. a subject has paper id == subject id
-    var papId=headerData[2][col-columnOffset]; //col-4 because the first four columns are stream,sp,cp and name
-    var subId=headerData[3][col-columnOffset];
-    if(markData.grades && papId===subId){
-        initData[subjectGradePos][col]=getGrade(paperAverage);
+    var papId = headerData[2][col-columnOffset]; //col-4 because the first four columns are stream,sp,cp and name
+    var subId = headerData[3][col-columnOffset];
+    if(markData.grades && papId === subId){
+        initData[subjectGradePos][col] = getGrade(paperAverage);
     }
 }
 
@@ -2059,7 +1961,7 @@ function generateColHeaders(resp){
             readOnly : readOnly,
             width : 70
            };
-          listeners[headers.length-1]=listenData; //register the listener for all papers
+          listeners[headers.length-1] = listenData; //register the listener for all papers
         }
         
         currentColor++;

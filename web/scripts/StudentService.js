@@ -6,7 +6,6 @@
          var allPapers=[];
          var allClasses=[];
          var allTeachers=[];
-         var graduationData=[];
          var privileges=["sms service","mark analysis","mark analysis admin","school records","school records admin","school accounts"];
          var privilegeKeys=["message_service","mark_service","edit_mark_service","student_service","edit_student_service","account_service"];
          
@@ -418,7 +417,7 @@
                      setInfo("An error occurred when attempting to fetch all streams");
                   },
                   success : function(json){
-                  graduationData =  generateStudentGraduation(json,form);
+                  generateStudentGraduation(json,form);
                 } 
           });
    
@@ -431,28 +430,33 @@
   * @returns an array containing select ids and class ids
   */
  function generateStudentGraduation(json,form){
-     var resp=json.response.data;
-     var streamNames=resp["STREAM_NAME"];
-     var streamIds=resp["ID"];
-     var newStreamNames=cloneArray(streamNames);
+     var resp = json.response.data;
+     var streamNames = resp["STREAM_NAME"];
+     var streamIds = resp["ID"];
+     var newStreamNames = cloneArray(streamNames);
      newStreamNames.push("Archive");
      streamIds.push("archive");
-     var selectIds=[];
-     for(var x=0; x<streamNames.length; x++){
-        if(streamIds[x].indexOf("AR_")>-1){
+     for(var x = 0; x < streamNames.length; x++){
+        if(streamIds[x].indexOf("AR_") > -1){
+           streamIds.splice(x,1);
+           newStreamNames.splice(x,1);
+        }
+     }
+    for(var x = 0; x < newStreamNames.length; x++){
+        if(newStreamNames[x].indexOf("Archive") > -1){
            continue;
         }
         var label=dom.newEl("label");
-        label.innerHTML=streamNames[x];
+        label.innerHTML=newStreamNames[x];
         var select =dom.newEl("select");
-        var id=Math.floor(Math.random()*100000000);
-        selectIds.push(id);
+        var id = Math.floor(Math.random()*10000000);
+        select.attr("previous_stream",streamIds[x]);
         select.attr("id",id);
         form.add(label);
         form.add(select);
         form.add(dom.newEl("br"));
         populateSelect(id,newStreamNames,streamIds); 
-        select.value=streamIds[x];
+        select.value = streamIds[x];
      }
      var gradBtn=dom.newEl("input");
      gradBtn.attr("type","button");
@@ -460,7 +464,6 @@
      gradBtn.attr("value","Graduate Students");
      gradBtn.attr("onclick","javascript:graduateStudents()");
      form.add(gradBtn);
-     return [selectIds,streamIds];
  }
  
  /*
@@ -472,11 +475,12 @@
    if(!conf){
       return;
    }
-   var selectIds=graduationData[0];
-   var classIds=graduationData[1];
-   var selectValues=[];
-   for(var x=0; x<selectIds.length; x++){
-      selectValues.push(dom.el(selectIds[x]).value);
+   var selects = $("#main-view-form").find("select")
+   var streamIds = [];
+   var selectValues = [];
+   for(var x = 0; x < selects.length; x++){
+      selectValues.push(selects[x].value);
+      streamIds.push(selects[x].getAttribute("previous_stream"));
    }
    var json={
                  request_header : {
@@ -485,8 +489,8 @@
                   },
                   
                   request_object : {  
-                     class_ids : classIds,
-                     new_class_ids : selectValues
+                     stream_ids : streamIds,
+                     new_stream_ids : selectValues
                   }
               };
           
@@ -2117,12 +2121,11 @@ function addTeacherSubject(){
 }
 //populate a select box from an array
 function populateSelect(selectbox,arrayoptions,arrayvalues){
-  if(!arrayvalues){
+    if(!arrayvalues)
       return;  
+    for(var y = 0; y < arrayvalues.length; ++y){
+       addOption(selectbox,arrayoptions[y],arrayvalues[y]);
     }
-  for(var y=0; y<arrayvalues.length; ++y){
-    addOption(selectbox,arrayoptions[y],arrayvalues[y]);
-   }
 
 }
   

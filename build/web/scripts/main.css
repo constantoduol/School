@@ -52,9 +52,10 @@ a {
     text-shadow:rgba(0, 0, 0, 0.247059) 0 -1px 0;
 }
 .btn-primary:hover {
-    background-color:#B8ED01;
-    color:black;
+    background-color:lightgreen;
+
 }
+
 
 
 
@@ -182,3 +183,29 @@ ol.linenums li {
                padding: 5px;
                width : 99%;
             }
+
+            
+              .circle {
+				font-size:20px;
+				margin : 10px;
+				color:#fff;
+				text-align:center;
+				background:#51CBEE;
+				font-weight: bold;
+				position: relative;
+				top : 0px;
+				left : 0px;
+				cursor : pointer;
+				width : 10px;
+				height : 10px;
+				border-radius : 10px;
+		}
+		
+		   .motion {
+				-webkit-transition: 200ms ease-in-out;
+				-moz-transition: 200ms ease-in-out;
+				-ms-transition : 200ms ease-in-out;
+			   -webkit-transition-property: top,left;
+			   -moz-transition-property: top,left;
+				-ms-transition-property: top,left;
+          }

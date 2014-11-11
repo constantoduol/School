@@ -215,7 +215,7 @@ var report={
         return !p[1] ? newstr : newstr + "." + p[1];
    },
    generateScoreBlock : function(win,resp,multiple){
-     var precision = resp.formulas.DESIGN[resp.formulas.SUBJECT_ID.indexOf("round")];
+     var precision = resp.formulas.DESIGN[resp.formulas.SUBJECT_ID.indexOf("a_prec")];
      var func=function(){
           if(multiple){
                var area=win.contentDocument; 
@@ -223,8 +223,8 @@ var report={
             else{
               var area=win.document;  
             }
-        area.getElementById("grand_total").innerHTML=Math.round(resp.grand_total)+"/"+resp.max_score; //the grand total
-        area.getElementById("mean_score").innerHTML=report.round(resp.average,precision); //the average
+        area.getElementById("grand_total").innerHTML = Math.round(resp.grand_total)+"/"+resp.max_score; //the grand total
+        area.getElementById("mean_score").innerHTML = report.round(resp.average,precision); //the average
         var template=resp.report_form_template.mean_score;
         if(!template){
             setInfo("Please set the details to appear on the report form under report form design");
@@ -265,18 +265,20 @@ var report={
           
           //-----------------------------------
           //begin subject score value
-         var currentSubjectId=resp.subject_data.ID[x];
-         var index= resp.student_marks[0].SUBJECT_ID.indexOf(currentSubjectId);
-         var len=resp.student_marks.length;
-         var markValue=resp.student_marks[len-1].MARK_VALUE[index];
+         var currentSubjectId = resp.subject_data.ID[x];
+         var index = resp.student_marks[0].SUBJECT_ID.indexOf(currentSubjectId);
+         var len = resp.student_marks.length;
+         var markValue = resp.student_marks[len - 1].MARK_VALUE[index];
          if(resp.student_marks[len-2]){ 
-           var markValue1=resp.student_marks[len-2].MARK_VALUE[index];
+             var markValue1 = resp.student_marks[len - 2].MARK_VALUE[index];
          }
+         
          if(resp.student_marks[len-3]){
-           var markValue2=resp.student_marks[len-3].MARK_VALUE[index]; 
+             var markValue2 = resp.student_marks[len-3].MARK_VALUE[index]; 
          }
-         var meanMark=resp.average_marks[index]; // these are the average marks in the three exams
-         var precision = resp.formulas.DESIGN[resp.formulas.SUBJECT_ID.indexOf("round")];
+         
+         var meanMark = resp.average_marks[index]; // these are the average marks in the three exams
+         var precision = resp.formulas.DESIGN[resp.formulas.SUBJECT_ID.indexOf("a_prec")];
          if(!markValue && !markValue1 && !markValue2){
             continue; 
          }
@@ -293,7 +295,7 @@ var report={
           }
           
           var td8=area.createElement("td"); //the mean score
-          td8.innerHTML=report.round(meanMark,precision);
+          td8.innerHTML = report.round(meanMark,precision);
           
           tr.appendChild(td1); //exam one
           tr.appendChild(td6); //exam two
@@ -318,28 +320,27 @@ var report={
           var teacherIndex=resp.teacher_data.SUBJECT_ID.indexOf(currentSubjectId);
           var teacherName=resp.teacher_data.TEACHER_NAME[teacherIndex];
           if(teacherName){
-             td5.innerHTML=teacherName.toUpperCase();
+             td5.innerHTML = teacherName.toUpperCase();
           }
           //-----------------------------------------
-           var template=resp.report_form_template.subject_details; //get the comment details
-           if(!template){
+           var template = resp.report_form_template.subject_details; //get the comment details
+           if( !template ){
               setInfo("Please set the details to appear on the report form under report form design");
               return;
            }
            
-           td3.innerHTML=resp.subject_ranks[currentSubjectId]+"/"+resp.total_in_class; //rank per subject
-            
-            for(var y=0; y<template.length; y++){
-             var tempDetails=template[y].split(",");
-             var subId=tempDetails[0];
-             var start=parseFloat(tempDetails[1]);
-             var stop=parseFloat(tempDetails[2]);
-             var grade=tempDetails[3];
-             var comm=tempDetails[4];
-             meanMark=Math.round(meanMark);
-              if(meanMark>=start && meanMark<=stop && subId===currentSubjectId){
+           td3.innerHTML = resp.subject_ranks[currentSubjectId]+"/"+resp.total_in_class; //rank per subject
+           for(var y = 0; y < template.length; y++){
+             var tempDetails = template[y].split(",");
+             var subId = tempDetails[0];
+             var start = parseFloat(tempDetails[1]);
+             var stop = parseFloat(tempDetails[2]);
+             var grade = tempDetails[3];
+             var comm = tempDetails[4];
+             meanMark = Math.round(meanMark);
+             if(meanMark >= start && meanMark <= stop && subId === currentSubjectId){
                    td2.innerHTML = grade; //the name of the subject 
-                   td4.innerHTML=comm; //these are the remarks
+                   td4.innerHTML = comm; //these are the remarks
               }  
           }
         
@@ -408,8 +409,8 @@ var report={
               return;
           }
          
-          td3.innerHTML=resp.subject_ranks[currentSubjectId]+"/"+resp.total_in_class; //rank per subject
-            for(var y=0; y<template.length; y++){
+          td3.innerHTML = resp.subject_ranks[currentSubjectId]+"/"+resp.total_in_class; //rank per subject
+          for(var y=0; y<template.length; y++){
              var tempDetails=template[y].split(",");
              var subId=tempDetails[0];
              var start=parseFloat(tempDetails[1]);
@@ -485,10 +486,9 @@ var report={
 
    },
   reportDesignView : function(){
-   var form=new Form(null,"main-view-form");
+   var form = new Form(null,"main-view-form");
    setTitle("Report Design View");
-   var div=dom.newEl("div");
-   div.attr("style","border : 2px solid #ddd; padding : 10px");
+   var div = ui.collapsible("main-view-form","Hide/Show Address Block","address_block_area");
    var header=dom.newEl("h3");
    header.innerHTML="Address Block";
    var scAddressLabel=dom.newEl("label");
@@ -541,7 +541,6 @@ var report={
    div.add(scExtra);
    div.add(dom.newEl("br"));
    div.add(save);
-   form.add(div);
    var json={
          request_header : {
              request_msg : "all_school_details",
@@ -593,8 +592,8 @@ var report={
              allFields=resp;
            } 
        }); 
-   var div1=dom.newEl("div");
-   div1.attr("style","border : 2px solid #ddd; padding : 10px; margin-top : 10px");
+
+   var div1 = ui.collapsible("main-view-form","Hide/Show Student Details","student_details_area");
    var header1=dom.newEl("h3");
    header1.innerHTML="Student Details";
    
@@ -619,23 +618,20 @@ var report={
    div1.add(dom.newEl("br"));
    div1.add(add);
    div1.add(saveField);
-   form.add(div1);
+   
    //end student details
    //------------------------------------
-   report.generateSubjectScoreGroups(form);
-   report.addScoreDetails(form);
-   report.addClassTeacher(form);
-   report.addPrincipal(form);
+   report.generateSubjectScoreGroups();
+   report.addScoreDetails();
+   report.addClassTeacher();
+   report.addPrincipal();
    report.fetchReportFormDetails();
  },
- generateSubjectScoreGroups : function(form){
-   var div1=dom.newEl("div");
-   div1.attr("style","border : 2px solid #ddd; padding : 10px; margin-top : 10px");
-   div1.attr("id","subject_view");
+ generateSubjectScoreGroups : function(){
+   var div1 = ui.collapsible("main-view-form","Hide/Show Subject Details","subject_view");
    var header1=dom.newEl("h3");
    header1.innerHTML="Subject Details";
    div1.add(header1);
-   form.add(div1);
      var json={
               request_header : {
                      request_msg : "all_subjects",
@@ -723,14 +719,12 @@ var report={
     div.add(commIn);
     CloseDiv(div,id, null); 
  },
-  addScoreDetails : function(form){
-   var div1=dom.newEl("div");
-   div1.attr("style","border : 2px solid #ddd; padding : 10px; margin-top : 10px");
-   div1.attr("id","score_view");
+  addScoreDetails : function(){
+   var div1 = ui.collapsible("main-view-form","Hide/Show Mean Score Details","score_view");
    var header1=dom.newEl("h3");
    header1.innerHTML="Mean Score Details";
-   var id="_mean_score_";
-   var div2=dom.newEl("div");
+   var id = "_mean_score_";
+   var div2 = dom.newEl("div");
    div2.attr("id",id);
    var btn=dom.newEl("input");
    btn.attr("type","button");
@@ -748,13 +742,10 @@ var report={
    div1.add(div2);
    div1.add(btn);
    div1.add(btn1);
-   form.add(div1);
  },     
- addClassTeacher : function(form){
-   var div1=dom.newEl("div");
-   div1.attr("style","border : 2px solid #ddd; padding : 10px; margin-top : 10px");
-   div1.attr("id","class_teacher_view");
-   var header1=dom.newEl("h3");
+ addClassTeacher : function(){
+   var div1 = ui.collapsible("main-view-form","Hide/Show Class Teacher Comments","class_teacher_view");
+   var header1 = dom.newEl("h3");
    header1.innerHTML="Class Teacher Comments";
    var id="_class_teacher_";
    var div2=dom.newEl("div");
@@ -775,12 +766,9 @@ var report={
    div1.add(div2);
    div1.add(btn);
    div1.add(btn1);
-   form.add(div1);
  },
- addPrincipal : function(form){
-   var div1=dom.newEl("div");
-   div1.attr("style","border : 2px solid #ddd; padding : 10px; margin-top : 10px");
-   div1.attr("id","principal_view");
+ addPrincipal : function(){
+   var div1 = ui.collapsible("main-view-form","Hide/Show Principal Comments","principal_view");
    var header1=dom.newEl("h3");
    header1.innerHTML="Principal Comments";
    var id="_principal_";
@@ -802,7 +790,6 @@ var report={
    div1.add(div2);
    div1.add(btn);
    div1.add(btn1);
-   form.add(div1);
  },
  saveAddressBlock : function(){
    var scAddress=dom.el("sc_address").value;

@@ -429,7 +429,32 @@ var ui={
      	    	  screenWidth = body.clientWidth;
      	     }
      	     return [screenWidth,screenHeight];        
-     	  }
+     	  },
+        collapsible : function(areaToAppend,title,areaId){
+           if(!areaId){
+             var id = "collapsible_"+Math.floor(Math.random()*10000000);  
+           }
+           else {
+              var id = "collapsible_"+areaId;
+           }
+           
+           var html = "<div class='accordion'>"+
+                      "<div class='accordion-group'>"+
+                      "<div class='accordion-heading'>"+
+                      "<a class='accordion-toggle' data-toggle='collapse' data-parent=#"+id+" href= '#collapseOne_"+id+"' style='text-decoration:none'><h3>"+
+                            title+
+                      "</h3></a>"+
+                      "</div>"+
+                     "<div id='collapseOne_"+id+"' class='accordion-body collapse in'>"+
+                     "<div class='accordion-inner'  id="+areaId+">"+
+                       
+                     "</div>"+
+                    "</div>"+
+                    "</div>";
+        
+           $("#"+areaToAppend).append(html);
+           return dom.el(areaId);
+        }
  
 };
 
@@ -455,7 +480,10 @@ var Ajax={
       
            //show that this page is loading
       if(data.loadArea){
-        dom.el(data.loadArea).style.display="block";
+         data.loadWidth = !data.loadWidth ? 250 : data.loadWidth;
+         data.loadDelay = !data.loadDelay ? 400 : data.loadDelay;
+         data.loadDX = !data.loadDX ? 50 : data.loadDX;
+         animate.start(data.loadArea,data.loadDX,data.loadDelay,data.loadWidth,0);
       }
       function callback(xhr){
         return function(){
@@ -464,8 +492,8 @@ var Ajax={
              var resp=xhr.responseText;
              var json=JSON.parse(resp);
              if(data.success!==null){
-                   if(data.loadArea){
-                    dom.el(data.loadArea).style.display="none";
+                  if(data.loadArea){
+                     animate.stop(data.loadArea);
                    }
                   if(json.request_msg==="redirect"){
                       parent.window.location=json.url;   
@@ -506,6 +534,72 @@ var Ajax={
     
 };
 
+
+var animate = {
+  dx : 80,
+  anim_delay : 400,
+  max : 200,
+  direction : 0,
+  timeoutData : {},
+  start : function(id,dx,delay,max,direction){
+      var area = $("#"+id);
+      area.addClass("circle");
+      area.addClass("motion");
+      animate.dx = dx;
+      animate.anim_delay = delay;
+      animate.max = max;
+      animate.direction = direction;
+      function getRandomColor(){
+          return  "#"+((1<<24)*Math.random()|0).toString(16);
+      }
+      
+      function runAnimation(){
+	    var currentLeft = parseFloat(area[0].style.left);
+            area[0].style.background = getRandomColor();
+            currentLeft = isNaN(currentLeft) ? 0 : currentLeft;
+            if(currentLeft > animate.max){
+                animate.direction = 1;
+            }
+	    if(currentLeft <= 0){
+                animate.direction = 0;
+            }
+            if(animate.direction === 0){
+                currentLeft = currentLeft + animate.dx;
+            }
+            else if(animate.direction === 1){
+                currentLeft = currentLeft - animate.dx;
+	   }
+           area[0].style.left = currentLeft + "px";
+           animate.timeoutData[id] = animate.runLater(animate.anim_delay,runAnimation);
+	  }
+	  animate.timeoutData[id] = animate.runLater(animate.anim_delay,runAnimation);
+	},
+	stop : function(id){
+            clearTimeout(animate.timeoutData[id]);
+             var area = $("#"+id);
+             area.removeClass("circle");
+             area.removeClass("motion");
+            delete animate.timeoutData[id];
+        },
+	runLater : function(limit,func){
+            return setTimeout(func,limit);
+	},
+        stopAll : function(){
+              for(var id in animate.timeoutData){
+                  var timeout = animate.timeoutData[id];
+                  clearTimeout(timeout);
+                  var area = $("#"+id);
+                  area.removeClass("circle");
+                  area.removeClass("motion");
+              } 
+              animate.timeoutData = {};
+        }
+
+
+
+
+
+};
 
 
 
