@@ -193,8 +193,8 @@ var ui={
         aLabel.attr("href","#");
         aLabel.innerHTML=arrOptions[0];
         var id=elementId+"_root";
-        if(dom.el(mainId)){
-           dom.el(mainId).remove(); 
+        if($("#"+mainId)){
+           $("#"+mainId).remove(); 
         }
         aLabel.attr("id",id);
         aLabel.attr("style","width: 150px;");
@@ -246,7 +246,11 @@ var ui={
       }
      },
      getSelected : function(id){
-        return dom.el(id+"_root").getAttribute("value");
+        var elem = dom.el(id+"_root");
+        if(elem){
+           return elem.getAttribute("value");
+        }
+        return null;
      },
      setSelected : function(id,value){
        var root=dom.el(id); 
@@ -495,10 +499,10 @@ var Ajax={
                   if(data.loadArea){
                      animate.stop(data.loadArea);
                    }
-                  if(json.request_msg==="redirect"){
+                  if(json.request_msg === "redirect"){
                       parent.window.location=json.url;   
                    }
-                  else if(json.response.type==="exception"){
+                  else if(json.response.type === "exception"){
                       setInfo(json.response.ex_reason);   
                    }
                   else{
@@ -519,7 +523,18 @@ var Ajax={
       }
         
       return function(){
-           var xhr=getRequestObject();
+           function getRequestObject(){
+               if(window.ActiveXObject){
+                   return new ActiveXObject("Microsoft.XMLHTTP");  
+               }
+               else if(window.XMLHttpRequest){
+                   return new  XMLHttpRequest();
+               }
+               else{
+                   return null; 
+               }
+           }
+           var xhr = getRequestObject();
            if(data.error!==null){
               if(xhr.onerror){
                 xhr.onerror=data.error; 
@@ -541,6 +556,9 @@ var animate = {
   max : 200,
   direction : 0,
   timeoutData : {},
+  randomColor :  function (){
+      return  "#"+((1<<24)*Math.random()|0).toString(16);
+  },
   start : function(id,dx,delay,max,direction){
       var area = $("#"+id);
       area.addClass("circle");
@@ -549,13 +567,10 @@ var animate = {
       animate.anim_delay = delay;
       animate.max = max;
       animate.direction = direction;
-      function getRandomColor(){
-          return  "#"+((1<<24)*Math.random()|0).toString(16);
-      }
-      
+     
       function runAnimation(){
 	    var currentLeft = parseFloat(area[0].style.left);
-            area[0].style.background = getRandomColor();
+            area[0].style.background = animate.randomColor();
             currentLeft = isNaN(currentLeft) ? 0 : currentLeft;
             if(currentLeft > animate.max){
                 animate.direction = 1;
@@ -613,18 +628,7 @@ var animate = {
  * this function returns an xml http object
  */
 
-function getRequestObject(){
-    if(window.ActiveXObject){
-      return new ActiveXObject("Microsoft.XMLHTTP");  
-    }
-    else if(window.XMLHttpRequest){
-       return new  XMLHttpRequest();
-    }
-    else{
-       return null; 
-    }
-    
-}
+
 
 
 

@@ -22,7 +22,7 @@ var report={
      var tempName=ui.dropdown.getSelected("template_select");
      report.current_template=tempName;
    },
-   openAllReportForms : function(clazzId,streamId,examName){
+   openAllReportForms : function(clazzId,streamId,examId){
        //to be implemented according to school report form designs
         var json={
                  request_header : {
@@ -44,13 +44,13 @@ var report={
                      setInfo("An error occurred when attempting to fetch all students");
                   },
                   success : function(json){
-                    var resp=json.response.data;
-                    var ids=resp["ID"];
-                    var mainWinHtmlSrc= report.templates[report.current_template].multiple_report;
-                    var mainWin=window.open(mainWinHtmlSrc,"win","width=800,height=650,scrollbars=yes,resizable=yes");
-                    report.mainWin=mainWin;
+                    var resp = json.response.data;
+                    var ids = resp["ID"];
+                    var mainWinHtmlSrc = report.templates[report.current_template].multiple_report;
+                    var mainWin = window.open(mainWinHtmlSrc,"win","width=800,height=650,scrollbars=yes,resizable=yes");
+                    report.mainWin = mainWin;
                     for(var x=0; x<ids.length; x++){
-                        report.openReportForm("",ids[x],clazzId,streamId,examName,true);
+                        report.openReportForm(ids[x],clazzId,streamId,examId,true);
                         
                     }
                     
@@ -59,22 +59,22 @@ var report={
     
    },
    generateSingleReportForm: function(resp,examName,multiple){ 
-       var rand=Math.floor((Math.random()*100000000));
-       var winHtmlSrc= report.templates[report.current_template].single_report;
+       var rand = Math.floor((Math.random()*100000000));
+       var winHtmlSrc = report.templates[report.current_template].single_report;
        if(multiple){
-         var win=document.createElement("iframe");
-         win.src=winHtmlSrc;
+         var win = document.createElement("iframe");
+         win.src = winHtmlSrc;
          win.setAttribute("style","display : none");
          $("#main-view-form").append(win);
        }
        else{
-         var win=window.open(winHtmlSrc,rand,"width=800,height=650,scrollbars=yes,resizable=yes");
+         var win = window.open(winHtmlSrc,rand,"width=800,height=650,scrollbars=yes,resizable=yes");
        }
        report.generateHeaderBlock(win,resp,examName,multiple);
-       if(report.current_template==="basic"){
+       if(report.current_template === "basic"){
           report.generateBasicSubjectBlock(win,resp,multiple);   
        }
-       else if(report.current_template==="advanced"){
+       else if(report.current_template === "advanced"){
           report.generateAdvancedSubjectBlock(win,resp,multiple);
        }
        report.generateScoreBlock(win,resp,multiple);
@@ -353,17 +353,18 @@ var report={
         } 
       };
       report.waitTillElementReady(win,"subject_detail_table",func,multiple);
+      report.generateTrend(resp,win,multiple);
    },
    generateBasicSubjectBlock : function(win,resp,multiple){
       var subjects=resp.subject_data.SUBJECT_NAME; 
-      var func=function(){
-            if(multiple){
-               var area=win.contentDocument; 
-            }
-            else{
-              var area=win.document;  
-            }
-        area.getElementById("fee_balance").innerHTML=resp.fee_balance; //set the fee balance
+      var func = function(){
+          if(multiple){
+              var area = win.contentDocument; 
+          }
+          else{
+              var area = win.document;  
+          }
+          area.getElementById("fee_balance").innerHTML=resp.fee_balance; //set the fee balance
         var subjectTable=area.getElementById("subject_detail_table");
         for(var x=0; x<subjects.length; x++){
           var tr=area.createElement("tr");
@@ -410,17 +411,17 @@ var report={
           }
          
           td3.innerHTML = resp.subject_ranks[currentSubjectId]+"/"+resp.total_in_class; //rank per subject
-          for(var y=0; y<template.length; y++){
-             var tempDetails=template[y].split(",");
-             var subId=tempDetails[0];
-             var start=parseFloat(tempDetails[1]);
-             var stop=parseFloat(tempDetails[2]);
-             var grade=tempDetails[3];
-             var comm=tempDetails[4];
-             markValue=Math.round(markValue);
-             if(markValue>=start && markValue<=stop && subId===currentSubjectId){
+          for(var y = 0; y < template.length; y++){
+             var tempDetails = template[y].split(",");
+             var subId = tempDetails[0];
+             var start = parseFloat(tempDetails[1]);
+             var stop = parseFloat(tempDetails[2]);
+             var grade = tempDetails[3];
+             var comm = tempDetails[4];
+             markValue = Math.round(markValue);
+             if(markValue >= start && markValue <= stop && subId === currentSubjectId){
                    td2.innerHTML = grade; //the name of the subject 
-                   td4.innerHTML=comm; //these are the remarks
+                   td4.innerHTML = comm; //these are the remarks
               }  
            }
           tr.appendChild(td2);
@@ -431,6 +432,79 @@ var report={
         } 
       };
       report.waitTillElementReady(win,"subject_detail_table",func,multiple);
+      report.generateTrend(resp,win,multiple);
+   },
+   generateTrend : function(resp,win,multiple){
+       var trendFunc = function(){
+          if(multiple){
+              var area = win.contentDocument; 
+          }
+          else{
+              var area = win.document;  
+          }
+          var script = area.createElement("script");
+          var ykeys = [];
+          script.type = "text/javascript";
+          var theScript = "";
+          theScript+= "Morris.Bar({"+
+                  "element: 'average_area',"+
+                  "parseTime: false,"+
+                  "barSizeRatio : 0.8,"+
+                  "barGap : 1,"+
+                  "data: [{x: '', ";
+          var length = resp.student_trend.exam_names.length > 16 ? 16 : resp.student_trend.exam_names.length;
+          for(var x = length; x > -1; x--){
+              if(!resp.student_trend.average.average[x]){
+                  continue;  
+              }
+              if(x === 0){
+                 theScript+= " E"+(x+1)+"  : "+Math.round(resp.student_trend.average.average[x]*100)/100+" "; 
+              }
+              else {
+                 theScript+= " E"+(x+1)+"  : "+Math.round(resp.student_trend.average.average[x]*100)/100+", "; 
+              }
+              ykeys.push(" 'E"+(x+1)+"' ");
+          }
+          theScript+= "}],"+
+                  "xkey: 'x',"+
+                  "ykeys: ["+ykeys+"],"+
+                  "labels: ["+ykeys+"]"+
+                  "})";
+          script.innerHTML = theScript;
+          area.getElementsByTagName("head")[0].appendChild(script);
+          var svg = area.getElementsByTagName("svg")[0]
+          svg.setAttribute("width","8.5in");
+          svg.style.paddingLeft = "40px";
+          var labelArea = area.getElementsByClassName("morris-hover")[0];
+          var averageArea = area.getElementById("average_area");
+          var textAreas = area.getElementsByTagName("text");
+          //averageArea.style.width = "8.5in";
+          var subjectLength = resp.subject_data.ID.length;
+          var zoom = "20%";
+          var fontSize;
+          if(subjectLength >= 0 && subjectLength <= 5){
+             zoom = "60%";
+             fontSize = "16px";
+             labelArea.style.fontSize = "24px";
+             
+          } 
+          else if(subjectLength >= 6 && subjectLength <= 10){
+              zoom = "40%";
+              fontSize = "24px";
+              labelArea.style.fontSize = "40px";
+          }
+          else {
+             zoom = "25%";
+             fontSize = "36px";
+             labelArea.style.fontSize = "50px";
+          }
+          averageArea.style.zoom = zoom;
+          for(var y = 0; y < textAreas.length; y++){
+             textAreas[y].style.fontSize = fontSize;
+          }
+      };
+      
+      report.waitTillElementReady(win,"average_area",trendFunc,multiple); 
    },
    waitTillElementReady : function(win,id,func,multiple){
       var time=setInterval(function(){
@@ -449,13 +523,18 @@ var report={
       },5); 
    }
    ,
-   openReportForm : function(studentName,studentId,clazzId,streamId,examIds,multiple){
+   openReportForm : function(studentId,clazzId,streamId,examIds,multiple){
       //to be implemented according to school report form design
+      var template = ui.dropdown.getSelected("template_select");
+      if(template === null || !template){
+          template = "basic";
+          report.current_template = template;
+      }
        if(!examIds || examIds==="null"){
            setInfo("Please select an exam or exams to proceed");
            return;
         }
-       var template=ui.dropdown.getSelected("template_select");
+     
        var json={
          request_header : {
              request_msg : "open_report_form",
@@ -478,7 +557,7 @@ var report={
             setInfo("An error occurred when attempting to open report form");
         },
         success : function(json){
-             var resp=json.response.data;
+             var resp = json.response.data;
              report.generateSingleReportForm(resp,examIds,multiple);
              
            } 
@@ -792,16 +871,16 @@ var report={
    div1.add(btn1);
  },
  saveAddressBlock : function(){
-   var scAddress=dom.el("sc_address").value;
-   var scEmail=dom.el("sc_email").value;
-   var scWeb=dom.el("sc_web").value;
-   var scTel=dom.el("sc_tel").value;
-   var scName=dom.el("sc_name").value;
-   var scExtra=dom.el("sc_extra_details").value;
-   var json={
+   var scAddress = dom.el("sc_address").value;
+   var scEmail = dom.el("sc_email").value;
+   var scWeb = dom.el("sc_web").value;
+   var scTel = dom.el("sc_tel").value;
+   var scName = dom.el("sc_name").value;
+   var scExtra = dom.el("sc_extra_details").value;
+   var json = {
                  request_header : {
                      request_msg : "save_address_block",
-                     request_svc :"edit_mark_service"
+                     request_svc : "edit_mark_service"
                   },
                   request_object : {  
                     sc_address : scAddress,
@@ -1163,7 +1242,7 @@ var report={
       var scTelIndex=resp["FIELD_TYPE"].indexOf("sc_tel");
       dom.el("sc_tel").value=resp["FIELD_VALUE"][scTelIndex];
       var scExtraIndex=resp["FIELD_TYPE"].indexOf("sc_extra_details");
-      dom.el("sc_extra_details").value=resp["FIELD_VALUE"][scExtraIndex];
+      dom.el("sc_extra_details").value = resp["FIELD_VALUE"][scExtraIndex];
   },
   populateStudentFields : function(resp){
      var fields=resp["FIELD_TYPE"];

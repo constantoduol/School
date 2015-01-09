@@ -1093,7 +1093,6 @@
                   },
                   success : function(json){
                     var resp=json.response.data;
-                    console.log(resp);
                     if(resp==="success"){
                      setInfo("teacher updated successfully ");   
                     }

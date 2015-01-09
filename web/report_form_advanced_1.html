@@ -23,8 +23,8 @@
 	  }
 	  
     #rank_table{
-	   margin-top : 20px;
-	   margin-bottom : 20px;
+	   margin-top : 5px;
+	   margin-bottom : 5px;
 	   width : 100%;
 	   border : 1px solid;
 	   padding : 10px;
@@ -46,7 +46,7 @@
 	   border : 1px solid;
 	   padding : 10px;
 	   border-collapse : collapse;
-	   margin-top : 20px;	
+	   margin-top : 5px;	
 	 }
 	#class_teacher_table_headers {
 	    text-align : left;
@@ -65,7 +65,7 @@
 	   border : 1px solid;
 	   padding : 10px;
 	   border-collapse : collapse;
-	   margin-bottom : 20px;
+	   margin-bottom : 5px;
 	 }
 	#fee_table_headers {
 	    text-align : left;
@@ -77,11 +77,22 @@
 		border-bottom: solid #9E9E9E 2.25pt;
 		font-size : 10pt;
 	}
+        
+         #trend_table{
+	   width : 100%;
+           height : 100px;
+	   float : left;
+	   border : 1px solid;
+	   padding : 10px;
+	   border-collapse : collapse;
+           border-top: solid #9E9E9E 1.0pt;
+	   margin-bottom : 5px;
+	 }
 	
    #student_detail_table{
 	   width : 100%;
 	   padding : 10px;
-	   margin-top : 20px;
+	   margin-top : 5px;
 	 }
 	
 	#principal_table{
@@ -89,7 +100,7 @@
 	   border : 1px solid;
 	   padding : 10px;
 	   border-collapse : collapse;
-	   margin-top : 20px;
+	   margin-top : 5px;
 	 }
 	#principal_table_headers {
 	    text-align : left;
@@ -151,7 +162,9 @@
 	}
 	
 	td{
-	  padding: 3pt;
+	  padding-left: 3pt;
+          padding-top : 1.2pt;
+          padding-bottom : 1.2pt;
 	  background: white;
 	  border-left: solid #9E9E9E 1.0pt;
 	  border-right: solid #9E9E9E 1.0pt;
@@ -170,25 +183,36 @@
     }
    
    #footer_msg {
-      margin-top : 20px;
+      margin-top : 5px;
       font-size : 8pt;
 	}
      
     .break {
         page-break-after: always; 
      }
+ 
+ 
+   .morris-hover.morris-default-style {
+       display : flex;
+   }
+   
+   .morris-hover-point {
+       border: 1px solid;
+       padding-left: 10px;
+       padding-right : 10px;
+    }
         
     @page
 	{ size:8.5in 11.0in;}
 	
    </style>
    <script src="scripts/jquery-1.9.1.js"></script>
+   <script type='text/javascript' src='scripts/raphael-min.js'></script>
+   <script type='text/javascript' src='scripts/morris.min.js'></script>
+   
    <script type="text/javascript">
       function doPrint(){
-        var buttons = $(".print_button");
-        for(var x = 0; x < buttons.length; x++ ){
-            buttons[x].remove();
-        }
+         $(".print_button").remove();
          window.print();
          window.close();
       } 
@@ -196,7 +220,7 @@
    </script>
  </head>
  <body id="report_area">
-     <div id="main_div" class="break">
+    <div id="main_div" class="break">
     <div id="header_div" align="center">
         <input type="button" value="Print" class="print_button" style="width: 100px" onclick="javascript:doPrint();">
 	  <div id="address_div">
@@ -238,6 +262,7 @@
 	   <th>MEAN GRADE</th>
 	   <th>RANK IN STREAM</th>
 	   <th class="align_td">RANK IN CLASS</th>
+           <th class="align_td">FEE BALANCE</th>
 	 </tr>
      <tr>
 	   <td id="grand_total"></td>
@@ -245,20 +270,21 @@
 	   <td id="student_grade"></td>
 	   <td id="rank_in_stream"></td>
 	   <td id="rank_in_class"></td>
+            <td id="fee_balance"></td>
 	 </tr>
+   </table>
+       
+     <table id="trend_table" border=1 cellspacing=0>
+      <tr>
+          <td>
+             <div id='average_area'></div> 
+          </td>
+      </tr>
    </table>
   
   
-   <table id="fee_table" border=1 cellspacing=0>
-     <tr id="fee_table_headers">
-	   <th>FEE BALANCE</th>
-	   <th class="align_td">SIGNATURE</th>
-	 </tr>
-        <tr>
-	   <td class="empty_td" id="fee_balance"></td>
-	   <td></td>
-	 </tr>
-   </table>
+  
+
    
    
    <table id="class_teacher_table" border=1 cellspacing=0>

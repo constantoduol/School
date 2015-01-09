@@ -121,10 +121,11 @@ var activate={
                            exp.attr("id","exp_area");
                            var svc=dom.newEl("label");
                            svc.attr("id","svc_area");
+                           var version = json.response.data.version_name +" " +  json.response.data.version_no;
                            var copyRight=dom.newEl("label");
                            copyRight.attr("id","copyright_area");
                            copyRight.attr("style","padding-top : 50px");
-                           copyRight.innerHTML=activate.copyright;
+                           copyRight.innerHTML= activate.copyright + "<br/>" + version;
                            activeDiv.add(msg);
                            activeDiv.add(exp);
                            activeDiv.add(svc);

@@ -16,6 +16,8 @@ var streamPos = 0;
 var namePos = 3;
 var totalLowerCol = 3;
 var columnOffset = 4;
+var columnEndOffset = 3; //3(G.total, average and grade)
+var rowOffset = 4; //4(an empty row, the totals row, the average row,the grade row)
 
 /*
  * this function is used to sort mark data on a given column in ascending order(smallest to largest)
@@ -265,12 +267,12 @@ function displayStudentReportData(resp){
      td1.innerHTML=(x+1);
      var a=dom.newEl("a");
      a.attr("href","#");
-     a.attr("onclick","javascript:report.openReportForm(\""+names[x]+"\",\""+ids[x]+"\",\""+classes[x]+"\",\""+streams[x]+"\",\""+exams+"\",false)");
+     a.attr("onclick","javascript:report.openReportForm(\""+ids[x]+"\",\""+classes[x]+"\",\""+streams[x]+"\",\""+exams+"\",false)");
      a.innerHTML=names[x];
      var a1=dom.newEl("a");
      a1.attr("href","#");
      a1.attr("onclick","javascript:fetchStudentTrend(\""+names[x]+"\",\""+ids[x]+"\")");
-     a1.innerHTML="View Trend";
+     a1.innerHTML = "View Trend";
      td3.add(a1);
      td2.add(a);
      tr1.add(td1);
@@ -284,8 +286,8 @@ function displayStudentReportData(resp){
 }
 
 function generateStudentTrend(name,resp){
-  var id=Math.floor(Math.random()*10000000);
-  var win=window.open("",id,"width=800,height=650,scrollbars=yes,resizable=yes");
+  var id = Math.floor(Math.random()*10000000);
+  var win = window.open("",id,"width=800,height=650,scrollbars=yes,resizable=yes");
   win.document.write("<html><head>");
   win.document.write("<title>"+name+"</title>");
   win.document.write("<script src='scripts/jquery-1.9.1.js'></script>");
@@ -315,7 +317,7 @@ function generateStudentTrend(name,resp){
          "labels: ['Marks']"+
          "})");
    win.document.write("</script>");
-   ui.table("average",["Exams","Average","Grade","Deviation"],[resp.exam_names,resp.average.average],false);
+   //ui.table("average",["Exams","Average","Grade","Deviation"],[resp.exam_names,resp.average.average],false);
   };
    
    setTimeout(func,1000);
@@ -750,43 +752,45 @@ function addSpaces(length){
  * this function creates a multidimensional array that is used to populate the mark grid
  */
 function createInitialArray(resp){
-   var ids=resp.students["ID"];
-   var students=resp.students["STUDENT_NAME"];
+   var ids = resp.students["ID"];
+   var students = resp.students["STUDENT_NAME"];
    //the length of the initial array is given by the number of students plus 4(an empty row, the totals row, the average row,the grade row)
-   var length=students.length+4;
-   var subjects=resp.subjects["SUBJECT_NAME"];
-   var studentStreams=resp.students["STUDENT_STREAM"];
-   var papers=resp.papers;
+   var length = students.length + rowOffset;
+   var subjects = resp.subjects["SUBJECT_NAME"];
+   var studentStreams = resp.students["STUDENT_STREAM"];
+   var papers = resp.papers;
    var width;
-   var arr=students;
+   var arr = students;
    //this was added to support functionality of hiding papers in case of many papers
    if(papers["PAPER_NAME"]){
-     width=subjects.length+papers["PAPER_NAME"].length+3; //if papers are to be displayed the width
+     width = subjects.length + papers["PAPER_NAME"].length + columnEndOffset; //if papers are to be displayed the width
      //of the grid is given by the number of subjects plus the number of papers plus 3(G.total, average and grade)
    }
    else{
-      width=subjects.length+3;
+      width=subjects.length + columnEndOffset;
       //if we are hiding papers then the width is given by the number of subjects plus 3(G.total, average and grade)
    }
-  for(var x=0; x<length; x++){
-    for(var y=0; y<width; y++){
-        if(y===streamPos){ //when y=0 it means we are populating the first column which is the stream name
-           var streamName=allStreams["STREAM_NAME"][allStreams["ID"].indexOf(studentStreams[x])];
+  
+  for(var x = 0; x < length; x++){
+    for(var y = 0; y < width; y++){
+        if(y === streamPos){ //when y = streamPos it means we are populating the stream column which is the stream name
+           var streamName = allStreams["STREAM_NAME"][allStreams["ID"].indexOf(studentStreams[x])];
            if(initData[x]){
-             initData[x][0]=streamName;  
+             initData[x][0] = streamName;  
            }
            else{
-              initData[x]=[]; 
-              initData[x][0]=streamName;
+              initData[x] = []; 
+              initData[x][0] = streamName;
            }
-           marksheetData[ids[x]]=[];
+           marksheetData[ids[x]] = [];
         }
-        else if(y===namePos){
-           initData[x][namePos]=arr[x]; 
+        else if(y === namePos){
+          if(arr[x])
+              initData[x][namePos] = "<a href='#' onclick='lauchStudentPrintView(\""+ids[x]+"\")'>"+arr[x]+"</a>";    
         }
         else{
-          //slave.push(" ");  //push an empty space for every other thing
-           initData[x][y]=" "; 
+          //push an empty space for every other thing
+           initData[x][y] = " "; 
         }
     }
   }
@@ -1328,6 +1332,7 @@ function marksheetPrintViewUI(){
    var selectFontFace=dom.newEl("select");
    selectFontFace.attr("id","mark_sheet_font_face");
    var modalArea = dom.el("modal-content");
+   modalArea.innerHTML = "";
    modalArea.add(titleLabel);
    modalArea.add(title);
    modalArea.add(fontSizeLabel);
@@ -1338,8 +1343,24 @@ function marksheetPrintViewUI(){
    populateSelect("mark_sheet_font_face",["Arial","Verdana","Calibri"],["arial","verdana","calibri"]);
 }
 
+function studentPrintViewUI(studentId,studentName){
+  var modalArea = $("#modal-content");
+  var examId = $("#exam_select").val();
+  var classId = $("#class_select").val();
+  var streamId = $("#stream_select").val();
+  var openReport = $("<input type='button' class='btn btn-primary' value='Open Report' onclick='report.openReportForm(\""+studentId+"\",\""+classId+"\",\""+streamId+"\",\""+examId+"\",false)'>");
+  var openTrend =  $("<input type='button' class='btn btn-primary' value='Open Trend' onclick='fetchStudentTrend(\""+studentName+"\",\""+studentId+"\")' style='margin-left:10px'>");
+  modalArea.html("");
+  modalArea.append(openReport).append(openTrend);
+}
+
 function lauchMarksheetPrintView(){
   ui.modal("Print Marksheet","marksheetPrintViewUI()","marksheetPrintView()");
+}
+
+function lauchStudentPrintView(studentId){ 
+  var studentName = markData.students.STUDENT_NAME[markData.students.ID.indexOf(studentId)];
+  ui.modal(studentName+" TREND AND REPORT","studentPrintViewUI(\""+studentId+"\",\""+studentName+"\")");
 }
 
 function marksheetPrintView(){
@@ -1436,7 +1457,9 @@ function generateGrid(resp){
 }
 
 function firstColRenderer(instance, td, row, col, prop, value, cellProperties) {
-  Handsontable.TextCell.renderer.apply(this, arguments);
+  //Handsontable.TextCell.renderer.apply(this, arguments);
+  var value = Handsontable.helper.stringify(value);
+  td.innerHTML = value;
   td.style.fontWeight = 'bold';
   td.style.color = 'black';
   td.style.fontStyle='normal';
@@ -1598,13 +1621,18 @@ function calculateGrandAndAverage(row){
       var col = headerData[4].indexOf(subName);
       var subValue = col === -1 || !initData[row][col] || initData[row][col] === " " ? 0 : initData[row][col];
       subName = subName.toLowerCase().split(" ").join("_"); // formulas are subject names in lowercase with spaces replaced with underscores
-      grandFormula = grandFormula.split(subName).join(subValue);
-      averageFormula = averageFormula.split(subName).join(subValue);
+      var chPrev = grandFormula.charAt(grandFormula.indexOf(subName) - 1);
+      var chNext = grandFormula.charAt(grandFormula.indexOf(subName) + subName.length);
+      if(! (/[a-zA-Z_]/.test(chPrev) || /[a-zA-Z_]/.test(chNext) )){ 
+          //there is a letter before this subject name e.g henglish instead of english, so dont replace or after e.g englishm instead of english
+          grandFormula = grandFormula.split(subName).join(subValue);
+          averageFormula = averageFormula.split(subName).join(subValue);
+      }
    }
  
    //there is a variable called num that is the number of subjects currently on the grid
-   var enteredSubjectsLength= getStudentSubjectLength(row,false);
-   var allSubjectsLength =getStudentSubjectLength(row,true);
+   var enteredSubjectsLength = getStudentSubjectLength(row,false);
+   var allSubjectsLength = getStudentSubjectLength(row,true);
    grandFormula = grandFormula.split("enteredSubjectsLength").join(enteredSubjectsLength);
    grandFormula = grandFormula.split("allSubjectsLength").join(allSubjectsLength);
    grandFormula = grandFormula.split("currentStream").join("'"+streamName+"'");
@@ -1612,8 +1640,9 @@ function calculateGrandAndAverage(row){
    averageFormula = averageFormula.split("allSubjectsLength").join(allSubjectsLength);
    averageFormula = averageFormula.split("currentStream").join("'"+streamName+"'");
   
+ 
    var grandTotal = eval(grandFormula);
-   var average=eval(averageFormula);
+   var average = eval(averageFormula);
    return [grandTotal,average];
 }
 
@@ -1882,7 +1911,7 @@ function generateColHeaders(resp){
    var formulaSubjectIds=formulas["SUBJECT_ID"];
    var currentColor=0;
    var currentDate=new Date().getTime();
-   var colors=["red","green","blue","green","purple","brown","orange"];
+   var colors = ["red","green","blue","green","purple","brown","orange"];
    
    headers.push("<b>STREAM</b>"); //the first column is stream column
    headerNames.push("STREAM");
@@ -1916,25 +1945,25 @@ function generateColHeaders(resp){
    if(!subjects){
       setInfo("Error : No subjects added to stream");
    }
-   for(var x=subjects.length-1; x>=0; x--){
+   for(var x = subjects.length-1; x >= 0; x--){
       if(!subNames){
        //this was added to aid in hide paper functionality, to
        //hide papers we assume that the subject has no other paper at all
        //it is convenient for a large grid with many subjects just before printing
-        index=-1; //manually indicate that this subject has no papers
+        index = -1; //manually indicate that this subject has no papers
       }
       else{
-           var index=subNames.indexOf(subjects[x]); 
-           var lastIndex=subNames.lastIndexOf(subjects[x]);
-           var formulaValue=formulaValues[formulaSubjectIds.indexOf(subjectIds[x])];
+           var index = subNames.indexOf(subjects[x]); 
+           var lastIndex = subNames.lastIndexOf(subjects[x]);
+           var formulaValue = formulaValues[formulaSubjectIds.indexOf(subjectIds[x])];
       }
-      if(index===-1){
+      if(index === -1){
         headers.push("<b><a href='#' id=\"_sortable_"+headers.length+"\" onclick='sortMarkDataAsc("+headers.length+",\"_sortable_"+headers.length+"\")'>"+subjects[x]+"</a></b>"); 
         headerNames.push(subjects[x]);
           //this subject has no papers so the subject id and paper id are just the same
         headerPaperIds.push(subjectIds[x]);
         headerSubjectIds.push(subjectIds[x]);
-        var readOnly=isReadOnly(teacherSubjects,teacherStreams,subjectIds[x],examDeadLine,currentDate);
+        var readOnly = isReadOnly(teacherSubjects,teacherStreams,subjectIds[x],examDeadLine,currentDate);
         columnTypes[headers.length-1]={
           type: 'numeric',
           readOnly : readOnly,
@@ -1942,13 +1971,13 @@ function generateColHeaders(resp){
         };
       
       }
-      else if(index!==lastIndex){
+      else if(index !== lastIndex){
          //this subject has more than one paper
         var listenData={};
-        listenData["paper_cols"]=[];
-        listenData["paper_names"]=[];
-        listenData["formula_value"]=formulaValue;
-        for(var y=index; y<=lastIndex; y++){
+        listenData["paper_cols"] = [];
+        listenData["paper_names"] = [];
+        listenData["formula_value"] = formulaValue;
+        for(var y = index; y <= lastIndex; y++){
            headers.push("<a href='#' id=\"_sortable_"+headers.length+"\" onclick='sortMarkDataAsc("+headers.length+",\"_sortable_"+headers.length+"\")'><font color='"+colors[currentColor]+"'>"+paperNames[y]+"</font></a>");
            headerNames.push(paperNames[y]);
            headerPaperIds.push(paperIds[y]);
@@ -2002,13 +2031,13 @@ function generateColHeaders(resp){
         headerSubjectIds.push(subjectIds[x]);
         listenData["subject_col"]=headers.length-1;
         columnTypes[headers.length-1]={
-          type: 'numeric',
-          width :70,
+          type : 'numeric',
+          width : 70,
           readOnly : true
         };
         currentColor++;
-        if(currentColor===colors.length-1){
-           currentColor=0;
+        if(currentColor === colors.length-1){
+           currentColor = 0;
         }
       }
    }
@@ -2053,8 +2082,7 @@ function generateColHeaders(resp){
    }
    
    
-   var all=new Array(headers,columnTypes,headerPaperIds,headerSubjectIds,headerNames);
-   return all;
+   return [headers,columnTypes,headerPaperIds,headerSubjectIds,headerNames];
 }
 
 
