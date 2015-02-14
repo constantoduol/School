@@ -1,3 +1,4 @@
+
 var dom={
     /**
      *
@@ -499,11 +500,11 @@ var Ajax={
                   if(data.loadArea){
                      animate.stop(data.loadArea);
                    }
-                  if(json.request_msg === "redirect"){
-                      parent.window.location=json.url;   
+                  if(json.request_msg === "auth_required"){
+                      parent.window.location= "index.html";   
                    }
                   else if(json.response.type === "exception"){
-                      setInfo(json.response.ex_reason);   
+                      console.log(json.response.ex_reason);   
                    }
                   else{
                      data.success(json); 
@@ -540,6 +541,7 @@ var Ajax={
                 xhr.onerror=data.error; 
               } 
            }
+           data.data.request_header.session_id =   window.cookieStorage.getItem("rand");
            sendJSON(data.url,data.data,xhr,callback(xhr),data.type);
      }();
      

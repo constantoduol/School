@@ -764,37 +764,32 @@ var report={
  },
  
  addScoreGroup : function(id,subId){
-    var start=document.createTextNode("  Start  ");
-    var stop=document.createTextNode("  Stop  ");
-    var grade=document.createTextNode("  Grade  ");
-    var comments=dom.newEl("label");
-    comments.innerHTML="Comments";
     var startIn=dom.newEl("input");
     startIn.attr("type","text");
     startIn.attr("class","input-small");
+    startIn.attr("placeholder","Start");
     
     var stopIn=dom.newEl("input");
     stopIn.attr("type","text");
     stopIn.attr("class","input-small");
+    stopIn.attr("placeholder","Stop");
     
     var gradeIn=dom.newEl("input");
     gradeIn.attr("type","text");
     gradeIn.attr("class","input-small");
+    gradeIn.attr("placeholder","Grade");
     
     var commIn=dom.newEl("input");
     commIn.attr("type","text");
     commIn.attr("class","input-xxlarge");
+    commIn.attr("placeholder","Comments");
     
     
     var div=dom.newEl("div");
     div.attr("subject_id",subId);
-    div.add(start);
     div.add(startIn);
-    div.add(stop);
     div.add(stopIn);
-    div.add(grade);
     div.add(gradeIn);
-    div.add(comments);
     div.add(commIn);
     CloseDiv(div,id, null); 
  },
@@ -1312,41 +1307,35 @@ var report={
      }  
   },
   addPopulatedScoreGroup : function(id,subId,startValue,stopValue,gradeValue,commValue){
-    var start=document.createTextNode("  Start  ");
-    var stop=document.createTextNode("  Stop  ");
-    var grade=document.createTextNode("  Grade  ");
-    var comments=dom.newEl("label");
-    comments.innerHTML="Comments";
     var startIn=dom.newEl("input");
     startIn.attr("type","text");
     startIn.attr("class","input-small");
     startIn.attr("value",startValue);
+    startIn.attr("placeholder","Start");
     
     var stopIn=dom.newEl("input");
     stopIn.attr("type","text");
     stopIn.attr("class","input-small");
     stopIn.attr("value",stopValue);
+    stopIn.attr("placeholder","Stop");
     
     var gradeIn=dom.newEl("input");
     gradeIn.attr("type","text");
     gradeIn.attr("class","input-small");
     gradeIn.attr("value",gradeValue);
+    gradeIn.attr("placeholder","Grade");
     
     var commIn=dom.newEl("input");
     commIn.attr("type","text");
     commIn.attr("class","input-xxlarge");
     commIn.attr("value",commValue);
-    
+    commIn.attr("placeholder","Comments");
     
     var div=dom.newEl("div");
     div.attr("subject_id",subId);
-    div.add(start);
     div.add(startIn);
-    div.add(stop);
     div.add(stopIn);
-    div.add(grade);
     div.add(gradeIn);
-    div.add(comments);
     div.add(commIn);
     CloseDiv(div,id, null); 
  }
