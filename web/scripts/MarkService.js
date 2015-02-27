@@ -1256,13 +1256,13 @@ function newHandsOn(){
              var latestValue=latestChange[3];
              var row = changes[y][0];
              var col = changes[y][1];
-             var oldValue=correctValue(changes[y][2]);
-             var newValue=correctValue(changes[y][3]);
-             if(latestRow===row && latestCol===col && latestValue===newValue){
+             var oldValue = correctValue(changes[y][2]);
+             var newValue = correctValue(changes[y][3]);
+             if(latestRow === row && latestCol === col && latestValue === newValue){
                continue;
              }
              
-             if(newValue===oldValue){
+             if(newValue === oldValue){
                 continue;
              }
              saveChanges(newValue,col,row); //2
@@ -1585,18 +1585,18 @@ function evaluateChanges(col,row){
  * @returns {Number} the total count of subjects in a row
  */
 function getStudentSubjectLength(row,notEntered){
-   var count=0;
-   var gradeIndex=headerData[4].indexOf(lastColumn); 
-   for(var x=columnOffset; x<gradeIndex; x++){
-       var val=initData[row][x];
-       var subId=headerData[3][x-columnOffset];
-       var papId=headerData[2][x-columnOffset];
-       if(val && val.toString().trim()===""  || isNaN(val)){
-          if(notEntered && subId && subId===papId){ //this means count even mark values for subjects not entered
+   var count = 0;
+   var gradeIndex = headerData[4].indexOf(lastColumn); 
+   for(var x = columnOffset; x < gradeIndex; x++){
+       var val = initData[row][x];
+       var subId = headerData[3][x-columnOffset];
+       var papId = headerData[2][x-columnOffset];
+       if(val && val.toString().trim()=== ""  || isNaN(val)){
+          if(notEntered && subId && subId === papId){ //this means count even mark values for subjects not entered
             count++;  
           }
        } 
-       else if(subId && subId===papId){
+       else if(subId && subId === papId && val.toString().trim()!== ""){ //count for valid values only 
           count++; //count for subjects only
        }
    }
@@ -1616,10 +1616,11 @@ function calculateGrandAndAverage(row){
        return;
     }
    //go through the formula looking for the values in the grid
-   for(var x=0; x<allSubjects.ID.length; x++){ //we are going to go through all the subjects repl
+   for(var x = 0; x < allSubjects.ID.length; x++){ //we are going to go through all the subjects repl
       var subName = allSubjects.SUBJECT_NAME[x];
       var col = headerData[4].indexOf(subName);
       var subValue = col === -1 || !initData[row][col] || initData[row][col] === " " ? 0 : initData[row][col];
+      subValue = subValue === -1 ? 0 : subValue;
       subName = subName.toLowerCase().split(" ").join("_"); // formulas are subject names in lowercase with spaces replaced with underscores
       var chPrev = grandFormula.charAt(grandFormula.indexOf(subName) - 1);
       var chNext = grandFormula.charAt(grandFormula.indexOf(subName) + subName.length);
@@ -1806,9 +1807,12 @@ function round(num,col){ //col a is average and g is grand
 }
 
 function correctValue(value){
-    if(value===null || value===undefined || value.toString().trim()===""){
-        value=0;   
-     }  
+    if(value === null || value === undefined){
+        value = 0;   
+    }  
+    else if(value.toString().trim()=== ""){
+        value = -1;
+    }
     return parseFloat(value);
 }
 
